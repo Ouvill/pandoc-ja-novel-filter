@@ -26,8 +26,14 @@ You will also need to define the `\dakuten` command in your LaTeX preamble. For 
 
 **preamble.tex:**
 ```latex
-\usepackage{pxrubrica}
-\newcommand{\dakuten}[1]{\ruby{#1}{゛}}
+\usepackage{bxghost}
+\newcommand{\dakuten}[1]{%
+    \jghostguarded{%
+        \leavevmode\hbox to 1\zw{%
+            \rensuji{\hbox to 1\zw{#1\hspace*{-.25\zw}゛}}%
+        }%
+    }%
+}
 ```
 
 Then, the full command would be:
