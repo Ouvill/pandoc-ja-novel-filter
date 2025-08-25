@@ -1,3 +1,3 @@
 FROM mcr.microsoft.com/devcontainers/base:noble
 
-RUN apt-get update && apt-get -y install pandoc
+RUN apt-get update && apt-get -y install pandoc lua5.4
