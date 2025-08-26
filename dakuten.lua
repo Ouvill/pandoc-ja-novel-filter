@@ -6,23 +6,41 @@ local function dakuten_Str(elem)
   -- In UTF-8, this is E3 82 99.
   -- In Lua string escapes, this is \227\130\153.
   local combining_dakuten = "\227\130\153"
+  -- The standalone voiced sound mark (゛) is U+309B.
+  -- In UTF-8, this is E3 82 9B (Lua: \227\130\155).
+  local voiced_mark = "\227\130\155"
 
   -- Pattern to match one UTF-8 character.
   -- This covers ASCII, and multi-byte characters.
   local utf8_char = "[\0-\x7F\xC2-\xF4][\x80-\xBF]*"
 
-  -- The full pattern to find is a UTF-8 character followed by a combining dakuten.
+  -- Patterns to find: a UTF-8 character followed by either combining dakuten or voiced mark.
   -- We capture the base character.
-  local pattern = "(" .. utf8_char .. ")" .. combining_dakuten
+  local pattern_comb = "(" .. utf8_char .. ")" .. combining_dakuten
+  local pattern_mark = "(" .. utf8_char .. ")" .. voiced_mark
 
-  if not elem.text:find(combining_dakuten) then
+  if not elem.text:find(combining_dakuten) and not elem.text:find(voiced_mark) then
     return nil
   end
 
   local new_elems = {}
   local s = elem.text
   while true do
-    local m_start, m_end, base_char = s:find(pattern)
+    -- Find earliest of the two patterns
+    local c_s, c_e, c_base = s:find(pattern_comb)
+    local m_s, m_e, m_base = s:find(pattern_mark)
+    local m_start, m_end, base_char
+    if c_s and m_s then
+      if c_s <= m_s then
+        m_start, m_end, base_char = c_s, c_e, c_base
+      else
+        m_start, m_end, base_char = m_s, m_e, m_base
+      end
+    elseif c_s then
+      m_start, m_end, base_char = c_s, c_e, c_base
+    elseif m_s then
+      m_start, m_end, base_char = m_s, m_e, m_base
+    end
 
     if not m_start then
       if #s > 0 then
