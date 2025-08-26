@@ -7,7 +7,7 @@
 --    e.g., ｜紅蓮の炎《ヘルフレイム》 -> \ruby[g]{紅蓮の炎}{ヘルフレイム}
 
 -- Only for LaTeX output
-if not FORMAT:match('latex') then return end
+if not FORMAT:match('latex') then return {} end
 
 local function make_ruby(base, yomi)
   return pandoc.RawInline('latex', string.format('\\ruby[g]{%s}{%s}', base, yomi))
@@ -20,7 +20,7 @@ local function toText(e)
 end
 
 -- We'll operate on Str elements and can return a list of inlines.
-function Str(elem)
+local function ruby_Str(elem)
   local s = elem.text
   if not s:find('《', 1, true) or not s:find('》', 1, true) then return elem end
 
@@ -115,3 +115,7 @@ function Str(elem)
   if #out == 1 then return out[1] end
   return out
 end
+
+return {
+  Str = ruby_Str,
+}

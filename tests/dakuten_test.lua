@@ -9,8 +9,8 @@ local pandoc = {
   RawInline = function(fmt, s) return { t = 'RawInline', format = fmt, text = s } end,
 }
 _G.pandoc = pandoc
-
-dofile((... and (...):gsub("[^/\\]+$", "dakuten.lua")) or "dakuten.lua")
+local filter = dofile((... and (...):gsub("[^/\\]+$", "dakuten.lua")) or "dakuten.lua")
+local Str = filter.Str
 
 -- Simple test framework
 local fails = 0
@@ -51,13 +51,10 @@ local function is_array_of_elems(x)
 end
 
 local function flatten(result)
-  if is_elem(result) then
-    return { result }
-  elseif is_array_of_elems(result) then
-    return result
-  else
-    error("Unexpected result shape from Str()")
-  end
+  if result == nil then return nil end
+  if is_elem(result) then return { result } end
+  if is_array_of_elems(result) then return result end
+  error("Unexpected result shape from Str()")
 end
 
 local function concat_text(result)
@@ -82,12 +79,11 @@ local dakuten = "\227\130\153" -- U+3099 combining dakuten
 
 -- Tests
 
--- 1) No dakuten: unchanged object
+-- 1) No dakuten: unchanged (nil)
 do
   local elem = make_elem("ただのテキスト")
   local out = Str(elem)
-  assert_true(out == elem, "No combining dakuten: element should be returned unchanged")
-  assert_equal(out.text, "ただのテキスト", "No combining dakuten: text should be unchanged")
+  assert_true(out == nil, "No combining dakuten: should return nil (unchanged)")
 end
 
 -- 2) Single combining dakuten: あ + U+3099 -> \dakuten{あ}
@@ -135,16 +131,14 @@ end
 do
   local elem = make_elem("が")
   local out = Str(elem)
-  assert_true(out == elem, "Precomposed kana: element should be returned unchanged")
-  assert_equal(out.text, "が", "Precomposed kana: text should be unchanged")
+  assert_true(out == nil, "Precomposed kana: should return nil (unchanged)")
 end
 
 -- 6) Empty string: unchanged
 do
   local elem = make_elem("")
   local out = Str(elem)
-  assert_true(out == elem, "Empty string: element should be returned unchanged")
-  assert_equal(out.text, "", "Empty string: text should be unchanged")
+  assert_true(out == nil, "Empty string: should return nil (unchanged)")
 end
 
 -- 7) Lone combining dakuten: returns Str with same text (new object)

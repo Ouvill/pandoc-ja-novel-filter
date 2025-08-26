@@ -6,8 +6,8 @@ local pandoc = {
   RawInline = function(fmt, s) return { t = 'RawInline', format = fmt, text = s } end,
 }
 _G.pandoc = pandoc
-
-dofile((... and (...):gsub("[^/\\]+$", "kakuyomu_ruby.lua")) or "kakuyomu_ruby.lua")
+local filter = dofile((... and (...):gsub("[^/\\]+$", "kakuyomu_ruby.lua")) or "kakuyomu_ruby.lua")
+local Str = filter.Str
 
 local fails, tests = 0, 0
 local function assert_eq(a, b, msg)
@@ -23,6 +23,7 @@ local function assert_true(c, msg)
 end
 
 local function flatten(x)
+  if x == nil then return nil end
   if type(x) == 'table' and x.t then return { x } end
   return x
 end
