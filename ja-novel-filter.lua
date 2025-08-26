@@ -33,6 +33,7 @@ end
 
 -- Load individual filters here
 include('dakuten.lua')
+include('kakuyomu_ruby.lua')
 
 -- Add more filters as needed, for example:
 -- include('ruby.lua')
