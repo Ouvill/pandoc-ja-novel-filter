@@ -42,3 +42,15 @@ pandoc input.md --lua-filter=dakuten.lua -H preamble.tex -o output.pdf
 ```
 
 This example uses the `pxrubrica` package to place the dakuten as ruby text. You can customize the `\dakuten` command to achieve your desired visual effect.
+
+## ja-novel-filter.lua (combined)
+
+If you want to use multiple Japanese novel filters through a single entry point, use `ja-novel-filter.lua` which aggregates individual filters (e.g., `dakuten.lua`). Place additional filter files alongside it and add `include('your-filter.lua')` lines inside `ja-novel-filter.lua`.
+
+Usage:
+
+```bash
+pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
+```
+
+This loads `dakuten.lua` internally, so you don't need to list it separately on the command line.
