@@ -1,10 +1,27 @@
--- kakuyomu_ruby.lua
--- Convert Kakuyomu-style ruby to LaTeX \ruby[g]{親文字}{ルビ文字}
--- Supported forms:
--- 1) <kanji-Only><《ruby》>    e.g., 冴えない彼女《ヒロイン》 -> 冴えない\ruby[g]{彼女}{ヒロイン}
---    (base part is the longest trailing Kanji sequence immediately before 《》)
--- 2) ｜ or | explicit base marker: ｜親文字《ruby》 or |親文字《ruby》
---    e.g., ｜紅蓮の炎《ヘルフレイム》 -> \ruby[g]{紅蓮の炎}{ヘルフレイム}
+-- kakuyomu_ruby.lua - Spec
+-- Purpose:
+--   Convert Kakuyomu-style ruby annotations to LaTeX pxrubrica's \ruby[g]{base}{ruby}.
+-- Output target:
+--   LaTeX only (inactive for non-LaTeX formats).
+-- Handler:
+--   Str(elem) -> nil | pandoc.Inline | pandoc.Inline[]
+-- Supported input forms:
+--   A) Implicit base (kanji-only): <...KANJI_RUN>《yomi》
+--      - The base is the longest contiguous kanji run right before 《》.
+--   B) Explicit base marker: ｜base《yomi》 or |base《yomi》
+--      - base may include non-kanji.
+-- Behavior:
+--   - Replaces the matched base+reading with RawInline('latex', "\\ruby[g]{base}{yomi}").
+--   - Preserves surrounding text as Str and supports multiple occurrences per Str.
+-- Returns:
+--   - nil when there’s no 《》 pair; Inline/Inline[] when transformed.
+-- Edge cases:
+--   - Unbalanced brackets: leaves text unchanged for that segment.
+--   - Implicit mode only matches CJK Unified Ideographs (U+3400–U+9FFF) and CJK Compatibility Ideographs (U+F900–U+FAFF).
+-- Examples:
+--   冴えない彼女《ヒロイン》 -> 冴えない\\ruby[g]{彼女}{ヒロイン}
+--   あいつの｜etc《えとせとら》 -> あいつの\\ruby[g]{etc}{えとせとら}
+--   この際｜紅蓮の炎《ヘルフレイム》に -> この際\\ruby[g]{紅蓮の炎}{ヘルフレイム}に
 
 -- Only for LaTeX output
 if not FORMAT:match('latex') then return {} end

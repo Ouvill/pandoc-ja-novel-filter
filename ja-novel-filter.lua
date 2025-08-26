@@ -1,7 +1,12 @@
--- ja-novel-filter.lua
--- Aggregate Japanese novel filters for Pandoc.
--- This file loads individual Lua filters which RETURN filter tables.
--- It returns an array of filters to be applied in order.
+-- ja-novel-filter.lua - Spec
+-- Purpose:
+--   Aggregate multiple Japanese text filters into a single entry point for Pandoc.
+-- Behavior:
+--   - Loads sibling Lua filter files which each return a filter table (e.g., { Str=... }).
+--   - Returns an array of those tables, preserving include order (earlier first).
+-- Order (current):
+--   1) dakuten.lua  2) kenten-filter.lua  3) kakuyomu_ruby.lua
+--   Adjust include order if precedence needs to change.
 
 -- Resolve this script's directory so we can dofile other filters reliably
 local function script_dir()

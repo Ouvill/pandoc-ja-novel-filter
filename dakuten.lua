@@ -1,3 +1,33 @@
+-- dakuten.lua - Spec
+-- Purpose:
+--   Convert a base character followed by a voiced sound mark to LaTeX \dakuten{...}.
+--   Supports both the combining dakuten (U+3099) and the standalone mark (U+309B "゛").
+-- Output target:
+--   LaTeX only (inactive for non-LaTeX formats).
+-- Handler:
+--   Str(elem) -> nil | pandoc.Inline | pandoc.Inline[]
+-- Behavior:
+--   - Scans elem.text and replaces each occurrence of:
+--       <UTF-8 char> + U+3099  (combining dakuten)
+--       <UTF-8 char> + U+309B  (voiced mark "゛")
+--     with RawInline('latex', "\\dakuten{<UTF-8 char>}").
+--   - Non-matching segments remain as Str.
+--   - Returns:
+--       nil when there’s no target (so upstream keeps elem unchanged),
+--       a single Inline when exactly one chunk is produced,
+--       or an array of Inlines when split is required.
+-- Rationale for early nil:
+--   Keeps composition-friendly semantics among multiple filters.
+-- Edge cases:
+--   - Empty string: returns nil (no change).
+--   - Precomposed kana like "が" are NOT changed (no decomposition performed).
+--   - Works with 1–4 byte UTF-8 base characters.
+-- Interactions:
+--   - Should run before filters that could restructure Str content unrelatedly.
+-- Examples:
+--   "あ\227\130\153" (あ + U+3099) => \dakuten{あ}
+--   "あ\227\130\155" (あ + U+309B) => \dakuten{あ}
+
 -- Returns a filter table compatible with Pandoc.
 local function dakuten_Str(elem)
   if not FORMAT:match('latex') then return nil end
