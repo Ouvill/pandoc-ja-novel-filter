@@ -20,27 +20,6 @@ local BASE = script_dir()
 
 local collected = {}
 
-local function include(fname)
-  -- Prefer path relative to this file; fall back to working dir
-  local ok, ret = pcall(dofile, BASE .. fname)
-  if not ok then
-    ok, ret = pcall(dofile, fname)
-  end
-  if ok and type(ret) == 'table' then
-    table.insert(collected, ret)
-  end
-end
-
--- Load individual filters here
-include('dakuten.lua')
-include('kakuyomu_ruby.lua')
-
--- Add more filters as needed, for example:
--- include('ruby.lua')
--- include('emphasis.lua')
-
--- If some included filters registered global handlers (Str, Para, ...),
--- gather them into a filter table so everything composes nicely.
 local known_handlers = {
   'Str','Space','SoftBreak','LineBreak','Emph','Strong','Strikeout','Superscript','Subscript',
   'SmallCaps','Code','Quoted','Cite','Span','Link','Image','Note','RawInline','Math','Para',
@@ -50,16 +29,50 @@ local known_handlers = {
   'Meta','Pandoc',
 }
 
-local global_filter = {}
-for _, name in ipairs(known_handlers) do
-  if type(_G[name]) == 'function' then
-    global_filter[name] = _G[name]
+local function snapshot()
+  local snap = {}
+  for _, name in ipairs(known_handlers) do
+    local fn = rawget(_G, name)
+    if type(fn) == 'function' then snap[name] = fn end
   end
-end
-if next(global_filter) ~= nil then
-  table.insert(collected, global_filter)
+  return snap
 end
 
-if #collected > 0 then
-  return collected
+local function include(fname)
+  local before = snapshot()
+  -- Prefer path relative to this file; fall back to working dir
+  local ok, ret = pcall(dofile, BASE .. fname)
+  if not ok then
+    ok, ret = pcall(dofile, fname)
+  end
+  if ok and type(ret) == 'table' then
+    table.insert(collected, ret)
+  end
+  -- Collect global handler changes as a delta filter
+  local after = snapshot()
+  local delta = {}
+  for _, name in ipairs(known_handlers) do
+    if after[name] and after[name] ~= before[name] then
+      delta[name] = after[name]
+    end
+  end
+  if next(delta) ~= nil then
+    table.insert(collected, delta)
+  end
+  -- Restore previous globals to avoid interference
+  for _, name in ipairs(known_handlers) do
+    if before[name] ~= after[name] then
+      _G[name] = before[name]
+    end
+  end
 end
+
+-- Load individual filters here (order matters)
+include('dakuten.lua')
+include('kakuyomu_ruby.lua')
+
+-- Add more filters as needed, for example:
+-- include('ruby.lua')
+-- include('emphasis.lua')
+
+if #collected > 0 then return collected end
