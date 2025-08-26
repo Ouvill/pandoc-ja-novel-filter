@@ -28,6 +28,7 @@ end
 
 -- Load individual filters here (order matters)
 include('dakuten.lua')
+include('kenten-filter.lua')
 include('kakuyomu_ruby.lua')
 
 -- Add more filters as needed, for example:
