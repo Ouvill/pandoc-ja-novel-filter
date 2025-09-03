@@ -11,11 +11,13 @@ This repository contains a collection of Pandoc Lua filters designed specificall
 - **Dakuten Support**: Convert combining dakuten characters to proper LaTeX commands
 - **Ruby Annotations**: Convert Kakuyomu-style ruby notation (`漢字《かんじ》`) to LaTeX ruby
 - **Emphasis Marks**: Convert Kakuyomu-style emphasis (`《《強調》》`) to LaTeX kenten (dots)
+- **Number Formatting**: Convert half-width numbers according to Japanese typesetting rules
 - **Combined Filter**: Use all filters together with a single command
 
 - **濁点サポート**: 結合濁点文字を適切なLaTeXコマンドに変換
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
+- **数字フォーマット**: 半角数字を日本語組版ルールに従って変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
 ## Installation / インストール
@@ -66,7 +68,19 @@ Converts Kakuyomu-style emphasis marks (`《《...》》`) to LaTeX `\kenten{...
 - Input / 入力: `《《重要》》な情報`
 - Output / 出力: `\kenten{重要}な情報`
 
-### 4. ja-novel-filter.lua / 統合フィルタ
+### 4. number-filter.lua / 数字フィルタ
+
+Converts half-width numbers according to Japanese typesetting rules. For 2-digit numbers, wraps them with `\small{\tatechuyoko{}}` for proper vertical typesetting. For 1-digit or 3+ digit numbers, converts them to full-width equivalents.
+
+半角数字を日本語組版ルールに従って変換します。2桁の数字は縦組みに適した`\small{\tatechuyoko{}}`で囲み、1桁または3桁以上の数字は全角数字に変換します。
+
+**Examples / 例:**
+- 1-digit / 1桁: `5` → `５`
+- 2-digit / 2桁: `12` → `\small{\tatechuyoko{12}}`
+- 3+ digits / 3桁以上: `123` → `１２３`
+- Mixed / 混合: `今日は12月3日です` → `今日は\small{\tatechuyoko{12}}月３日です`
+
+### 5. ja-novel-filter.lua / 統合フィルタ
 
 A combined entry point that loads all individual filters in the correct order. This is the recommended way to use multiple filters together.
 
@@ -76,6 +90,7 @@ A combined entry point that loads all individual filters in the correct order. T
 1. dakuten.lua
 2. kenten-filter.lua  
 3. kakuyomu_ruby.lua
+4. number-filter.lua
 
 ## Usage / 使用方法
 
@@ -84,6 +99,7 @@ A combined entry point that loads all individual filters in the correct order. T
 **Single filter / 単一フィルタ:**
 ```bash
 pandoc input.md --lua-filter=dakuten.lua -o output.tex
+pandoc input.md --lua-filter=number-filter.lua -o output.tex
 ```
 
 **All filters (recommended) / すべてのフィルタ（推奨）:**
@@ -110,6 +126,9 @@ Create a preamble file for proper Japanese typesetting:
         }%
     }%
 }
+
+% Tatechuyoko command for 2-digit numbers / 2桁数字用縦中横コマンド
+\newcommand{\tatechuyoko}[1]{\rensuji{#1}}
 ```
 
 **Complete command / 完全なコマンド:**
@@ -129,6 +148,8 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 この際｜紅蓮の炎《ヘルフレイム》に焼かれて果てろ！
 
 おじいさんは山へ《《柴刈り》》に出かけました。
+
+今日は12月3日、気温は25度です。番号は1番から99番まで、1000個あります。
 ```
 
 This will be converted to proper LaTeX commands for professional Japanese novel typesetting.
@@ -145,6 +166,7 @@ Run the test suite to verify all filters work correctly:
 lua5.3 tests/dakuten_test.lua
 lua5.3 tests/kakuyomu_ruby_test.lua  
 lua5.3 tests/kenten_filter_test.lua
+lua5.3 tests/number_filter_test.lua
 ```
 
 ## Requirements / 要件
