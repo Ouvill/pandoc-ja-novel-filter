@@ -12,12 +12,14 @@ This repository contains a collection of Pandoc Lua filters designed specificall
 - **Ruby Annotations**: Convert Kakuyomu-style ruby notation (`漢字《かんじ》`) to LaTeX ruby
 - **Emphasis Marks**: Convert Kakuyomu-style emphasis (`《《強調》》`) to LaTeX kenten (dots)
 - **Number Formatting**: Convert half-width numbers according to Japanese typesetting rules
+- **Alphabet Filtering**: Convert exactly 3-character ASCII letter/symbol sequences to full-width
 - **Combined Filter**: Use all filters together with a single command
 
 - **濁点サポート**: 結合濁点文字を適切なLaTeXコマンドに変換
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
 - **数字フォーマット**: 半角数字を日本語組版ルールに従って変換
+- **アルファベットフィルタ**: 3文字ちょうどのASCII英字・記号列を全角に変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
 ## Installation / インストール
@@ -80,7 +82,23 @@ Converts half-width numbers according to Japanese typesetting rules. For 2-digit
 - 3+ digits / 3桁以上: `123` → `１２３`
 - Mixed / 混合: `今日は12月3日です` → `今日は\small{\tatechuyoko{12}}月３日です`
 
-### 5. ja-novel-filter.lua / 統合フィルタ
+### 5. alphabet-filter.lua / アルファベットフィルタ
+
+Converts sequences of half-width ASCII letters and symbols according to Japanese typesetting rules. Only sequences of exactly 3 characters are converted to full-width equivalents; other lengths remain unchanged.
+
+半角ASCII英字・記号列を日本語組版ルールに従って変換します。ちょうど3文字の列のみを全角に変換し、他の長さは変更されません。
+
+**Rules / ルール:**
+- Exactly 3 characters: convert to full-width / ちょうど3文字: 全角に変換
+- Other lengths (1, 2, 4+): keep as half-width / 他の長さ（1, 2, 4+文字）: 半角のまま
+
+**Examples / 例:**
+- 3 characters / 3文字: `ABC` → `ＡＢＣ`, `!@#` → `！＠＃`
+- 2 characters / 2文字: `AB` → `AB` (unchanged / 変更なし)
+- 4+ characters / 4+文字: `ABCD` → `ABCD` (unchanged / 変更なし)
+- Mixed / 混合: `今日はABCです` → `今日はＡＢＣです`
+
+### 6. ja-novel-filter.lua / 統合フィルタ
 
 A combined entry point that loads all individual filters in the correct order. This is the recommended way to use multiple filters together.
 
@@ -90,7 +108,8 @@ A combined entry point that loads all individual filters in the correct order. T
 1. dakuten.lua
 2. kenten-filter.lua  
 3. kakuyomu_ruby.lua
-4. number-filter.lua
+4. alphabet-filter.lua
+5. number-filter.lua
 
 ## Usage / 使用方法
 
@@ -100,6 +119,7 @@ A combined entry point that loads all individual filters in the correct order. T
 ```bash
 pandoc input.md --lua-filter=dakuten.lua -o output.tex
 pandoc input.md --lua-filter=number-filter.lua -o output.tex
+pandoc input.md --lua-filter=alphabet-filter.lua -o output.tex
 ```
 
 **All filters (recommended) / すべてのフィルタ（推奨）:**
@@ -150,6 +170,8 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 おじいさんは山へ《《柴刈り》》に出かけました。
 
 今日は12月3日、気温は25度です。番号は1番から99番まで、1000個あります。
+
+APIキーやHTMLタグ、URLなどの用語もあります。
 ```
 
 This will be converted to proper LaTeX commands for professional Japanese novel typesetting.
@@ -167,6 +189,7 @@ lua5.3 tests/dakuten_test.lua
 lua5.3 tests/kakuyomu_ruby_test.lua  
 lua5.3 tests/kenten_filter_test.lua
 lua5.3 tests/number_filter_test.lua
+lua5.3 tests/alphabet_filter_test.lua
 ```
 
 ## Requirements / 要件
