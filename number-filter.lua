@@ -1,6 +1,6 @@
 -- number-filter.lua - Spec
 -- Purpose:
---   Convert half-width numbers according to Japanese typesetting rules:
+--   Convert half-width numbers according to custom project rules:
 --   - 2-digit numbers: wrap with \small{\tatechuyoko{XX}}
 --   - 1-digit or 3+ digit numbers: convert to full-width equivalents
 -- Output target:

@@ -11,13 +11,13 @@ This repository contains a collection of Pandoc Lua filters designed specificall
 - **Dakuten Support**: Convert combining dakuten characters to proper LaTeX commands
 - **Ruby Annotations**: Convert Kakuyomu-style ruby notation (`漢字《かんじ》`) to LaTeX ruby
 - **Emphasis Marks**: Convert Kakuyomu-style emphasis (`《《強調》》`) to LaTeX kenten (dots)
-- **Number Formatting**: Convert half-width numbers according to Japanese typesetting rules
+- **Number Formatting**: Convert half-width numbers according to custom project rules
 - **Combined Filter**: Use all filters together with a single command
 
 - **濁点サポート**: 結合濁点文字を適切なLaTeXコマンドに変換
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
-- **数字フォーマット**: 半角数字を日本語組版ルールに従って変換
+- **数字フォーマット**: 半角数字を独自のルールに従って変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
 ## Installation / インストール
@@ -70,9 +70,9 @@ Converts Kakuyomu-style emphasis marks (`《《...》》`) to LaTeX `\kenten{...
 
 ### 4. number-filter.lua / 数字フィルタ
 
-Converts half-width numbers according to Japanese typesetting rules. For 2-digit numbers, wraps them with `\small{\tatechuyoko{}}` for proper vertical typesetting. For 1-digit or 3+ digit numbers, converts them to full-width equivalents.
+Converts half-width numbers according to custom project rules. For 2-digit numbers, wraps them with `\small{\tatechuyoko{}}` for proper vertical typesetting. For 1-digit or 3+ digit numbers, converts them to full-width equivalents.
 
-半角数字を日本語組版ルールに従って変換します。2桁の数字は縦組みに適した`\small{\tatechuyoko{}}`で囲み、1桁または3桁以上の数字は全角数字に変換します。
+半角数字を独自のルールに従って変換します。2桁の数字は縦組みに適した`\small{\tatechuyoko{}}`で囲み、1桁または3桁以上の数字は全角数字に変換します。
 
 **Examples / 例:**
 - 1-digit / 1桁: `5` → `５`
