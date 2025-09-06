@@ -117,7 +117,7 @@ do
   assert_len(arr, 1, "Two digits: should return a single element")
   assert_equal(arr[1].t, "RawInline", "Two digits: element type should be RawInline")
   assert_equal(arr[1].format, "latex", "Two digits: format should be latex")
-  assert_equal(arr[1].text, "\\small{\\tatechuyoko{12}}", "Two digits: latex command")
+  assert_equal(arr[1].text, "{\\small\\tatechuyoko{12}}", "Two digits: latex command")
 end
 
 -- 5) Three digits: convert to full-width
@@ -149,7 +149,7 @@ do
   assert_equal(arr[1].t, "Str", "Mixed text: first element type")
   assert_equal(arr[1].text, "今日は", "Mixed text: first text")
   assert_equal(arr[2].t, "RawInline", "Mixed text: second element type")
-  assert_equal(arr[2].text, "\\small{\\tatechuyoko{12}}", "Mixed text: tatechuyoko for 12")
+  assert_equal(arr[2].text, "{\\small\\tatechuyoko{12}}", "Mixed text: tatechuyoko for 12")
   assert_equal(arr[3].t, "Str", "Mixed text: third element type") 
   assert_equal(arr[3].text, "月", "Mixed text: third text")
   assert_equal(arr[4].t, "Str", "Mixed text: fourth element type")
@@ -165,11 +165,11 @@ do
   local arr = flatten(out)
   assert_len(arr, 3, "Multiple 2-digits: should return three elements")
   assert_equal(arr[1].t, "RawInline", "Multiple 2-digits: first element type")
-  assert_equal(arr[1].text, "\\small{\\tatechuyoko{12}}", "Multiple 2-digits: first tatechuyoko")
+  assert_equal(arr[1].text, "{\\small\\tatechuyoko{12}}", "Multiple 2-digits: first tatechuyoko")
   assert_equal(arr[2].t, "Str", "Multiple 2-digits: second element type")
   assert_equal(arr[2].text, "と", "Multiple 2-digits: second text")
   assert_equal(arr[3].t, "RawInline", "Multiple 2-digits: third element type")
-  assert_equal(arr[3].text, "\\small{\\tatechuyoko{34}}", "Multiple 2-digits: second tatechuyoko")
+  assert_equal(arr[3].text, "{\\small\\tatechuyoko{34}}", "Multiple 2-digits: second tatechuyoko")
 end
 
 -- 9) Adjacent numbers with different rules
@@ -210,7 +210,7 @@ do
   assert_equal(arr[2].t, "Str", "Numbers at edges: second element type")
   assert_equal(arr[2].text, "年後の", "Numbers at edges: second text")
   assert_equal(arr[3].t, "RawInline", "Numbers at edges: third element type")
-  assert_equal(arr[3].text, "\\small{\\tatechuyoko{99}}", "Numbers at edges: tatechuyoko for 99")
+  assert_equal(arr[3].text, "{\\small\\tatechuyoko{99}}", "Numbers at edges: tatechuyoko for 99")
 end
 
 -- 13) Only numbers
@@ -220,7 +220,7 @@ do
   local arr = flatten(out)
   assert_len(arr, 1, "Only 2-digit number: should return single element")
   assert_equal(arr[1].t, "RawInline", "Only 2-digit number: element type")
-  assert_equal(arr[1].text, "\\small{\\tatechuyoko{99}}", "Only 2-digit number: tatechuyoko")
+  assert_equal(arr[1].text, "{\\small\\tatechuyoko{99}}", "Only 2-digit number: tatechuyoko")
 end
 
 -- Summary
