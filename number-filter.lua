@@ -1,7 +1,7 @@
 -- number-filter.lua - Spec
 -- Purpose:
 --   Convert half-width numbers according to custom project rules:
---   - 2-digit numbers: wrap with \small{\tatechuyoko{XX}}
+--   - 2-digit numbers: wrap with {\small\tatechuyoko{XX}}
 --   - 1-digit or 3+ digit numbers: convert to full-width equivalents
 -- Output target:
 --   LaTeX only (inactive for non-LaTeX formats).
@@ -9,15 +9,15 @@
 --   Str(elem) -> nil | pandoc.Inline | pandoc.Inline[]
 -- Behavior:
 --   - Scans elem.text for sequences of ASCII digits (0-9)
---   - 2-digit sequences get wrapped with RawInline('latex', "\\small{\\tatechuyoko{XX}}")
+--   - 2-digit sequences get wrapped with RawInline('latex', "{\small\tatechuyoko{XX}}")
 --   - Other digit sequences convert each digit to full-width equivalent
 --   - Non-matching segments remain as Str
 --   - Returns nil when no digits found, single Inline for one chunk, array for multiple chunks
 -- Examples:
 --   "5" -> "５"
---   "12" -> \small{\tatechuyoko{12}}
+--   "12" -> {\small\tatechuyoko{12}}
 --   "123" -> "１２３"
---   "今日は12月3日です" -> "今日は\small{\tatechuyoko{12}}月３日です"
+--   "今日は12月3日です" -> "今日は{\small\tatechuyoko{12}}月３日です"
 
 -- Only for LaTeX output
 if not FORMAT:match('latex') then return {} end
@@ -38,7 +38,7 @@ local function convert_to_fullwidth(digits)
 end
 
 local function make_tatechuyoko(digits)
-  return pandoc.RawInline('latex', string.format('\\small{\\tatechuyoko{%s}}', digits))
+  return pandoc.RawInline('latex', string.format('{\\small\\tatechuyoko{%s}}', digits))
 end
 
 local function number_Str(elem)
