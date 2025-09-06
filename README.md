@@ -55,13 +55,13 @@ pandoc --version
 
 ### 4. number-filter.lua（数字フィルタ）
 
-半角数字を独自のルールに従って変換します。2桁の数字は縦組みに適した`\small{\tatechuyoko{}}`で囲み、1桁または3桁以上の数字は全角数字に変換します。
+半角数字を独自のルールに従って変換します。2桁の数字は縦組みに適した`\small{\tatechuyoko*{}}`で囲み、1桁または3桁以上の数字は全角数字に変換します。
 
 **例:**
 - 1桁: `5` → `５`
-- 2桁: `12` → `\small{\tatechuyoko{12}}`
+- 2桁: `12` → `\small{\tatechuyoko*{12}}`
 - 3桁以上: `123` → `１２３`
-- 混合: `今日は12月3日です` → `今日は\small{\tatechuyoko{12}}月３日です`
+- 混合: `今日は12月3日です` → `今日は\small{\tatechuyoko*{12}}月３日です`
 
 ### 5. ja-novel-filter.lua（統合フィルタ）
 
@@ -107,7 +107,7 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -o output.tex
 }
 
 % 2桁数字用縦中横コマンド
-\newcommand{\tatechuyoko}[1]{\rensuji{#1}}
+\newcommand{\tatechuyoko*}[1]{\rensuji{#1}}
 ```
 
 **完全なコマンド:**

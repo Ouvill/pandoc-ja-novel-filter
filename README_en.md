@@ -55,13 +55,13 @@ Converts Kakuyomu-style emphasis marks (`《《...》》`) to LaTeX `\kenten{...
 
 ### 4. number-filter.lua
 
-Converts half-width numbers according to custom project rules. For 2-digit numbers, wraps them with `\small{\tatechuyoko{}}` for proper vertical typesetting. For 1-digit or 3+ digit numbers, converts them to full-width equivalents.
+Converts half-width numbers according to custom project rules. For 2-digit numbers, wraps them with `\small{\tatechuyoko*{}}` for proper vertical typesetting. For 1-digit or 3+ digit numbers, converts them to full-width equivalents.
 
 **Examples:**
 - 1-digit: `5` → `５`
-- 2-digit: `12` → `\small{\tatechuyoko{12}}`
+- 2-digit: `12` → `\small{\tatechuyoko*{12}}`
 - 3+ digits: `123` → `１２３`
-- Mixed: `今日は12月3日です` → `今日は\small{\tatechuyoko{12}}月３日です`
+- Mixed: `今日は12月3日です` → `今日は\small{\tatechuyoko*{12}}月３日です`
 
 ### 5. ja-novel-filter.lua
 
@@ -107,7 +107,7 @@ Create a preamble file for proper Japanese typesetting:
 }
 
 % Tatechuyoko command for 2-digit numbers
-\newcommand{\tatechuyoko}[1]{\rensuji{#1}}
+\newcommand{\tatechuyoko*}[1]{\rensuji{#1}}
 ```
 
 **Complete command:**
