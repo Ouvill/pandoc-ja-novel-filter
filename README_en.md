@@ -10,6 +10,7 @@ This repository contains a collection of Pandoc Lua filters designed specificall
 - **Ruby Annotations**: Convert Kakuyomu-style ruby notation (`漢字《かんじ》`) to LaTeX ruby
 - **Emphasis Marks**: Convert Kakuyomu-style emphasis (`《《強調》》`) to LaTeX kenten (dots)
 - **Number Formatting**: Convert half-width numbers according to custom project rules
+- **Scene Breaks**: Convert full-width space lines to proper spacing for scene transitions
 - **Combined Filter**: Use all filters together with a single command
 
 ## Installation
@@ -63,7 +64,17 @@ Converts half-width numbers according to custom project rules. For 2-digit numbe
 - 3+ digits: `123` → `１２３`
 - Mixed: `今日は12月3日です` → `今日は{\small\tatechuyoko*{12}}月３日です`
 
-### 5. ja-novel-filter.lua
+### 5. break-filter.lua
+
+Converts lines containing only full-width spaces (　) into LaTeX `\vspace` commands for representing scene transitions and temporal gaps in novels.
+
+**Examples:**
+- Single full-width space: `　` → `\vspace{1\baselineskip}`
+- Double full-width space: `　　` → `\vspace{2\baselineskip}`
+- Consecutive lines: Total spaces are combined
+- Works with or without `--wrap=preserve` option
+
+### 6. ja-novel-filter.lua
 
 A combined entry point that loads all individual filters in the correct order. This is the recommended way to use multiple filters together.
 
@@ -72,6 +83,7 @@ A combined entry point that loads all individual filters in the correct order. T
 2. kenten-filter.lua  
 3. kakuyomu_ruby.lua
 4. number-filter.lua
+5. break-filter.lua
 
 ## Usage
 
@@ -81,6 +93,7 @@ A combined entry point that loads all individual filters in the correct order. T
 ```bash
 pandoc input.md --lua-filter=dakuten.lua -o output.tex
 pandoc input.md --lua-filter=number-filter.lua -o output.tex
+pandoc input.md --lua-filter=break-filter.lua -o output.tex
 ```
 
 **All filters (recommended):**
@@ -126,6 +139,14 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 
 おじいさんは山へ《《柴刈り》》に出かけました。
 
+　
+
+The scene changes to the next morning.
+
+　　
+
+An even larger passage of time.
+
 今日は12月3日、気温は25度です。番号は1番から99番まで、1000個あります。
 ```
 
@@ -140,6 +161,7 @@ lua5.3 tests/dakuten_test.lua
 lua5.3 tests/kakuyomu_ruby_test.lua  
 lua5.3 tests/kenten_filter_test.lua
 lua5.3 tests/number_filter_test.lua
+lua5.3 tests/break_filter_test.lua
 ```
 
 ## Requirements

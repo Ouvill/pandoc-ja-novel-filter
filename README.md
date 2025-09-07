@@ -10,6 +10,7 @@
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
 - **数字フォーマット**: 半角数字を独自のルールに従って変換
+- **改行・場面転換**: 全角スペース行を適切な間隔に変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
 ## インストール
@@ -63,7 +64,17 @@ pandoc --version
 - 3桁以上: `123` → `１２３`
 - 混合: `今日は12月3日です` → `今日は{\small\tatechuyoko*{12}}月３日です`
 
-### 5. ja-novel-filter.lua（統合フィルタ）
+### 5. break-filter.lua（改行・場面転換フィルタ）
+
+全角スペース（　）のみの行を小説の場面転換や時間の間を表現するLaTeX `\vspace` コマンドに変換します。
+
+**例:**
+- 1個の全角スペース: `　` → `\vspace{1\baselineskip}`
+- 2個の全角スペース: `　　` → `\vspace{2\baselineskip}`
+- 連続する全角スペース行: 各行の全角スペース数を合計して変換
+- `--wrap=preserve`オプションの有無に関わらず動作
+
+### 6. ja-novel-filter.lua（統合フィルタ）
 
 すべての個別フィルタを正しい順序で読み込む統合エントリーポイント。複数のフィルタを一緒に使用する推奨方法です。
 
@@ -72,6 +83,7 @@ pandoc --version
 2. kenten-filter.lua  
 3. kakuyomu_ruby.lua
 4. number-filter.lua
+5. break-filter.lua
 
 ## 使用方法
 
@@ -81,6 +93,7 @@ pandoc --version
 ```bash
 pandoc input.md --lua-filter=dakuten.lua -o output.tex
 pandoc input.md --lua-filter=number-filter.lua -o output.tex
+pandoc input.md --lua-filter=break-filter.lua -o output.tex
 ```
 
 **すべてのフィルタ（推奨）:**
@@ -126,6 +139,14 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 
 おじいさんは山へ《《柴刈り》》に出かけました。
 
+　
+
+場面が変わって、次の日の朝。
+
+　　
+
+さらに大きな時間の流れを表現。
+
 今日は12月3日、気温は25度です。番号は1番から99番まで、1000個あります。
 ```
 
@@ -140,6 +161,7 @@ lua5.3 tests/dakuten_test.lua
 lua5.3 tests/kakuyomu_ruby_test.lua  
 lua5.3 tests/kenten_filter_test.lua
 lua5.3 tests/number_filter_test.lua
+lua5.3 tests/break_filter_test.lua
 ```
 
 ## 要件
