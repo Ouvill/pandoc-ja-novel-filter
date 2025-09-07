@@ -10,7 +10,6 @@
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
 - **数字フォーマット**: 半角数字を独自のルールに従って変換
-- **場面転換（空白行）**: 複数の空白行に相当する間隔をLaTeX `\vspace` コマンドに変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
 ## インストール
@@ -66,34 +65,25 @@ pandoc --version
 
 ### 5. break-filter.lua（場面転換フィルタ）
 
-場面転換や時間の間を表現するための空白行をLaTeX `\vspace{N\baselineskip}` コマンドに変換します。Markdownの複数の空白行は通常Pandocによって削除されるため、特別な記法を使用します。
+Markdownで3行以上連続する空白行を場面転換として自動検出し、LaTeX `\vspace{N\baselineskip}` コマンドに変換します。空白行数から2を引いた値が空白の高さになります（N = 空白行数 - 2）。
 
-**記法:**
-- `n`行分の空白を挿入: 
-  ```markdown
-  ::: {.break data-lines="n"}
-  :::
-  ```
-- デフォルト（1行分）の空白:
-  ```markdown
-  ::: {.break}
-  :::
-  ```
-
-**例:**
-- 入力: `::: {.break data-lines="2"} :::` → 出力: `\vspace{2\baselineskip}`
-- 入力: `::: {.break data-lines="3"} :::` → 出力: `\vspace{3\baselineskip}`
-- 入力: `::: {.break} :::` → 出力: `\vspace{1\baselineskip}`
-
-**使用例:**
-```markdown
-第一章が終了しました。
-
-::: {.break data-lines="3"}
-:::
-
-第二章の始まりです。
+**使用方法:**
+前処理が必要です。以下のコマンドで空白行を自動検出して変換できます：
+```bash
+lua5.3 preprocess-blank-lines.lua input.md | pandoc --lua-filter=ja-novel-filter.lua -o output.pdf
 ```
+
+**変換例:**
+```markdown
+本文1
+
+
+
+本文2
+```
+上記の4行の空白は `\vspace{2\baselineskip}` に変換されます（4行 - 2 = 2）。
+
+**注意:** 3行未満の空白行はそのまま保持されます。3行以上の空白行のみが場面転換として検出されます。
 
 ### 6. ja-novel-filter.lua（統合フィルタ）
 
@@ -119,6 +109,16 @@ pandoc input.md --lua-filter=number-filter.lua -o output.tex
 **すべてのフィルタ（推奨）:**
 ```bash
 pandoc input.md --lua-filter=ja-novel-filter.lua -o output.tex
+```
+
+**場面転換を含む小説の処理（空白行の自動検出）:**
+```bash
+# 前処理で空白行を検出してからPandocで変換
+lua5.3 preprocess-blank-lines.lua input.md | pandoc --lua-filter=ja-novel-filter.lua -o output.pdf
+
+# または段階的に処理
+lua5.3 preprocess-blank-lines.lua input.md preprocessed.md
+pandoc preprocessed.md --lua-filter=ja-novel-filter.lua -o output.pdf
 ```
 
 ### LaTeX設定

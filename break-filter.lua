@@ -1,28 +1,23 @@
 -- break-filter.lua - Spec
 -- Purpose:
---   Convert fenced div blocks with break class to LaTeX \vspace commands.
---   Provides a way to represent multiple consecutive blank lines in Markdown that
---   survive Pandoc's processing and create proper spacing in LaTeX output.
+--   Convert consecutive blank lines (3+) to LaTeX \vspace commands.
+--   Handles scene transitions and spacing in novel formatting.
+--   Formula: N = blank_lines - 2 (so 3 blank lines = 1\baselineskip, 4 = 2\baselineskip, etc.)
 -- Output target:
 --   LaTeX only (inactive for non-LaTeX formats).
 -- Handler:
 --   Div(elem) -> nil | pandoc.Block
 -- Behavior:
---   - Detects Div blocks with class "break"
+--   - Works with preprocessed markdown that converts blank lines to vspace divs
+--   - Detects Div blocks with class "vspace" 
 --   - Converts to LaTeX \vspace{N\baselineskip} where N is from data-lines attribute
---   - If data-lines is not specified or invalid, defaults to 1
--- Usage in Markdown:
---   ::: {.break data-lines="2"}
---   :::
---   
---   ::: {.break data-lines="3"}
---   :::
---   
---   ::: {.break}
+--   - Also supports legacy "break" class for backward compatibility
+-- Internal usage (created by pre-processor):
+--   ::: {.vspace data-lines="2"}
 --   :::
 -- Examples:
---   ::: {.break data-lines="2"} becomes \vspace{2\baselineskip}
---   ::: {.break} becomes \vspace{1\baselineskip}
+--   4 consecutive blank lines -> vspace div with data-lines="2" -> \vspace{2\baselineskip}
+--   3 consecutive blank lines -> vspace div with data-lines="1" -> \vspace{1\baselineskip}
 
 if not FORMAT:match('latex') then return {} end
 
@@ -30,16 +25,16 @@ local function break_Div(elem)
   local classes = elem.classes
   local attributes = elem.attributes
   
-  -- Check if this div has the "break" class
-  local has_break_class = false
+  -- Check if this div has the "vspace" or "break" class (for backward compatibility)
+  local has_vspace_class = false
   for _, class in ipairs(classes) do
-    if class == "break" then
-      has_break_class = true
+    if class == "vspace" or class == "break" then
+      has_vspace_class = true
       break
     end
   end
   
-  if not has_break_class then return nil end
+  if not has_vspace_class then return nil end
   
   -- Get the number of lines from data-lines attribute
   local lines = attributes["data-lines"]

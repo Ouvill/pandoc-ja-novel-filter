@@ -10,7 +10,6 @@ This repository contains a collection of Pandoc Lua filters designed specificall
 - **Ruby Annotations**: Convert Kakuyomu-style ruby notation (`漢字《かんじ》`) to LaTeX ruby
 - **Emphasis Marks**: Convert Kakuyomu-style emphasis (`《《強調》》`) to LaTeX kenten (dots)
 - **Number Formatting**: Convert half-width numbers according to custom project rules
-- **Scene Breaks (Blank Lines)**: Convert multiple blank lines to LaTeX `\vspace` commands for scene transitions
 - **Combined Filter**: Use all filters together with a single command
 
 ## Installation
@@ -64,36 +63,27 @@ Converts half-width numbers according to custom project rules. For 2-digit numbe
 - 3+ digits: `123` → `１２３`
 - Mixed: `今日は12月3日です` → `今日は{\small\tatechuyoko*{12}}月３日です`
 
-### 5. break-filter.lua
+### 5. break-filter.lua (Scene Transition Filter)
 
-Converts scene breaks and time transitions to LaTeX `\vspace{N\baselineskip}` commands. Since Markdown's multiple blank lines are normally removed by Pandoc, this filter uses a special notation.
+Automatically detects 3 or more consecutive blank lines in Markdown and converts them to LaTeX `\vspace{N\baselineskip}` commands. The spacing height is calculated as N = blank lines - 2.
 
-**Notation:**
-- Insert `n` lines of space: 
-  ```markdown
-  ::: {.break data-lines="n"}
-  :::
-  ```
-- Default (1 line) space:
-  ```markdown
-  ::: {.break}
-  :::
-  ```
-
-**Examples:**
-- Input: `::: {.break data-lines="2"} :::` → Output: `\vspace{2\baselineskip}`
-- Input: `::: {.break data-lines="3"} :::` → Output: `\vspace{3\baselineskip}`
-- Input: `::: {.break} :::` → Output: `\vspace{1\baselineskip}`
-
-**Usage example:**
-```markdown
-Chapter one has ended.
-
-::: {.break data-lines="3"}
-:::
-
-Chapter two begins here.
+**Usage:**
+Preprocessing is required. Use the following command to automatically detect and convert blank lines:
+```bash
+lua5.3 preprocess-blank-lines.lua input.md | pandoc --lua-filter=ja-novel-filter.lua -o output.pdf
 ```
+
+**Conversion example:**
+```markdown
+Text1
+
+
+
+Text2
+```
+The above 4 blank lines will be converted to `\vspace{2\baselineskip}` (4 lines - 2 = 2).
+
+**Note:** Blank lines fewer than 3 are preserved as-is. Only 3 or more consecutive blank lines are detected as scene transitions.
 
 ### 6. ja-novel-filter.lua
 
@@ -119,6 +109,16 @@ pandoc input.md --lua-filter=number-filter.lua -o output.tex
 **All filters (recommended):**
 ```bash
 pandoc input.md --lua-filter=ja-novel-filter.lua -o output.tex
+```
+
+**Processing novels with scene transitions (automatic blank line detection):**
+```bash
+# Preprocess to detect blank lines then convert with Pandoc
+lua5.3 preprocess-blank-lines.lua input.md | pandoc --lua-filter=ja-novel-filter.lua -o output.pdf
+
+# Or process step by step
+lua5.3 preprocess-blank-lines.lua input.md preprocessed.md
+pandoc preprocessed.md --lua-filter=ja-novel-filter.lua -o output.pdf
 ```
 
 ### LaTeX Setup
