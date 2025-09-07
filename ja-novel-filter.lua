@@ -36,6 +36,7 @@ include('dakuten.lua')
 include('kenten-filter.lua')
 include('kakuyomu_ruby.lua')
 include('number-filter.lua')
+include('break-filter.lua')
 
 -- Add more filters as needed, for example:
 -- include('ruby.lua')

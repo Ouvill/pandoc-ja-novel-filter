@@ -10,6 +10,7 @@ This repository contains a collection of Pandoc Lua filters designed specificall
 - **Ruby Annotations**: Convert Kakuyomu-style ruby notation (`漢字《かんじ》`) to LaTeX ruby
 - **Emphasis Marks**: Convert Kakuyomu-style emphasis (`《《強調》》`) to LaTeX kenten (dots)
 - **Number Formatting**: Convert half-width numbers according to custom project rules
+- **Scene Breaks (Blank Lines)**: Convert multiple blank lines to LaTeX `\vspace` commands for scene transitions
 - **Combined Filter**: Use all filters together with a single command
 
 ## Installation
@@ -63,7 +64,38 @@ Converts half-width numbers according to custom project rules. For 2-digit numbe
 - 3+ digits: `123` → `１２３`
 - Mixed: `今日は12月3日です` → `今日は{\small\tatechuyoko*{12}}月３日です`
 
-### 5. ja-novel-filter.lua
+### 5. break-filter.lua
+
+Converts scene breaks and time transitions to LaTeX `\vspace{N\baselineskip}` commands. Since Markdown's multiple blank lines are normally removed by Pandoc, this filter uses a special notation.
+
+**Notation:**
+- Insert `n` lines of space: 
+  ```markdown
+  ::: {.break data-lines="n"}
+  :::
+  ```
+- Default (1 line) space:
+  ```markdown
+  ::: {.break}
+  :::
+  ```
+
+**Examples:**
+- Input: `::: {.break data-lines="2"} :::` → Output: `\vspace{2\baselineskip}`
+- Input: `::: {.break data-lines="3"} :::` → Output: `\vspace{3\baselineskip}`
+- Input: `::: {.break} :::` → Output: `\vspace{1\baselineskip}`
+
+**Usage example:**
+```markdown
+Chapter one has ended.
+
+::: {.break data-lines="3"}
+:::
+
+Chapter two begins here.
+```
+
+### 6. ja-novel-filter.lua
 
 A combined entry point that loads all individual filters in the correct order. This is the recommended way to use multiple filters together.
 
@@ -72,6 +104,7 @@ A combined entry point that loads all individual filters in the correct order. T
 2. kenten-filter.lua  
 3. kakuyomu_ruby.lua
 4. number-filter.lua
+5. break-filter.lua
 
 ## Usage
 

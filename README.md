@@ -10,6 +10,7 @@
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
 - **数字フォーマット**: 半角数字を独自のルールに従って変換
+- **場面転換（空白行）**: 複数の空白行に相当する間隔をLaTeX `\vspace` コマンドに変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
 ## インストール
@@ -63,7 +64,38 @@ pandoc --version
 - 3桁以上: `123` → `１２３`
 - 混合: `今日は12月3日です` → `今日は{\small\tatechuyoko*{12}}月３日です`
 
-### 5. ja-novel-filter.lua（統合フィルタ）
+### 5. break-filter.lua（場面転換フィルタ）
+
+場面転換や時間の間を表現するための空白行をLaTeX `\vspace{N\baselineskip}` コマンドに変換します。Markdownの複数の空白行は通常Pandocによって削除されるため、特別な記法を使用します。
+
+**記法:**
+- `n`行分の空白を挿入: 
+  ```markdown
+  ::: {.break data-lines="n"}
+  :::
+  ```
+- デフォルト（1行分）の空白:
+  ```markdown
+  ::: {.break}
+  :::
+  ```
+
+**例:**
+- 入力: `::: {.break data-lines="2"} :::` → 出力: `\vspace{2\baselineskip}`
+- 入力: `::: {.break data-lines="3"} :::` → 出力: `\vspace{3\baselineskip}`
+- 入力: `::: {.break} :::` → 出力: `\vspace{1\baselineskip}`
+
+**使用例:**
+```markdown
+第一章が終了しました。
+
+::: {.break data-lines="3"}
+:::
+
+第二章の始まりです。
+```
+
+### 6. ja-novel-filter.lua（統合フィルタ）
 
 すべての個別フィルタを正しい順序で読み込む統合エントリーポイント。複数のフィルタを一緒に使用する推奨方法です。
 
@@ -72,6 +104,7 @@ pandoc --version
 2. kenten-filter.lua  
 3. kakuyomu_ruby.lua
 4. number-filter.lua
+5. break-filter.lua
 
 ## 使用方法
 
