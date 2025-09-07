@@ -162,6 +162,30 @@ do
   assert_equal(result.blocks[1].text, "\\vspace{4\\baselineskip}", "Only spaces: should sum to 4")
 end
 
+-- 10) Mixed full-width space and text: should remain unchanged
+do
+  local mixed_content = { pandoc.Str("　これは文字も含みます") }
+  local mixed_para = pandoc.Para(mixed_content)
+  local doc = make_doc({ mixed_para })
+  local result = Pandoc(doc)
+  
+  assert_len(result.blocks, 1, "Mixed content: should have 1 block")
+  assert_equal(result.blocks[1].t, "Para", "Mixed content: should remain Para")
+  assert_equal(result.blocks[1].content[1].text, "　これは文字も含みます", "Mixed content: text should be unchanged")
+end
+
+-- 11) Full-width spaces at start of text: should remain unchanged
+do
+  local mixed_content = { pandoc.Str("　　文字も含む行") }
+  local mixed_para = pandoc.Para(mixed_content)
+  local doc = make_doc({ mixed_para })
+  local result = Pandoc(doc)
+  
+  assert_len(result.blocks, 1, "Spaces with text: should have 1 block")
+  assert_equal(result.blocks[1].t, "Para", "Spaces with text: should remain Para")
+  assert_equal(result.blocks[1].content[1].text, "　　文字も含む行", "Spaces with text: should be unchanged")
+end
+
 -- Summary
 if fails == 0 then
   print(("OK - %d assertions"):format(tests_run))
