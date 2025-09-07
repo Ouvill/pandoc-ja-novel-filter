@@ -5,16 +5,13 @@
 --   - Lines with only full-width spaces (　) are converted to \vspace{\baselineskip}
 --   - Multiple consecutive full-width space lines are combined: total spaces = \vspace{N\baselineskip}
 
+local utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''):gsub('[^/\\]*$', '') .. 'utils.lua')
+
 local function is_fullwidth_space_line(para)
-  if para.t ~= "Para" then
+  if not para or para.t ~= "Para" or #para.content == 0 then
     return false
   end
   
-  if #para.content == 0 then
-    return false
-  end
-  
-  -- Handle various content structures
   local text = ""
   for _, elem in ipairs(para.content) do
     if elem.t == "Str" then
@@ -34,6 +31,10 @@ local function is_fullwidth_space_line(para)
 end
 
 local function count_fullwidth_spaces_in_para(para)
+  if not para or not para.content then
+    return 0
+  end
+  
   local count = 0
   for _, elem in ipairs(para.content) do
     if elem.t == "Str" then
@@ -45,7 +46,15 @@ local function count_fullwidth_spaces_in_para(para)
   return count
 end
 
-function Pandoc(doc)
+local function process_document(doc)
+  if not utils.is_latex() then
+    return doc
+  end
+  
+  if not doc or not doc.blocks then
+    return doc
+  end
+  
   local new_blocks = {}
   local i = 1
   
@@ -64,8 +73,10 @@ function Pandoc(doc)
       end
       
       -- Create single vspace command for all consecutive lines
-      local vspace_cmd = string.format("\\vspace{%d\\baselineskip}", total_spaces)
-      table.insert(new_blocks, pandoc.RawBlock("latex", vspace_cmd))
+      if total_spaces > 0 then
+        local vspace_cmd = string.format("\\vspace{%d\\baselineskip}", total_spaces)
+        table.insert(new_blocks, utils.latex_block(vspace_cmd))
+      end
       
       -- Skip all processed lines
       i = j
@@ -80,5 +91,5 @@ function Pandoc(doc)
 end
 
 return {
-  { Pandoc = Pandoc }
+  { Pandoc = process_document }
 }

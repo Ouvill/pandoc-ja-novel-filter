@@ -19,8 +19,7 @@
 --   "123" -> "１２３"
 --   "今日は12月3日です" -> "今日は{\small\tatechuyoko*{12}}月３日です"
 
--- Only for LaTeX output
-if not FORMAT:match('latex') then return {} end
+local utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''):gsub('[^/\\]*$', '') .. 'utils.lua')
 
 -- Full-width digit conversion table
 local halfwidth_to_fullwidth = {
@@ -38,67 +37,56 @@ local function convert_to_fullwidth(digits)
 end
 
 local function make_tatechuyoko(digits)
-  return pandoc.RawInline('latex', string.format('{\\small\\tatechuyoko*{%s}}', digits))
+  return utils.latex_inline(string.format('{\\small\\tatechuyoko*{%s}}', digits))
 end
 
-local function number_Str(elem)
-  local s = elem.text
-  
-  -- Check if there are any digits
-  if not s:find('[0-9]') then
+local function process_number_text(text)
+  if not text:find('[0-9]') then
     return nil
   end
   
   local out = {}
   local i = 1
-  local N = #s
+  local text_len = #text
   
-  while i <= N do
-    -- Find next digit sequence
-    local digit_start = s:find('[0-9]', i)
+  while i <= text_len do
+    local digit_start = text:find('[0-9]', i)
     if not digit_start then
-      -- No more digits, add remaining text
-      if i <= N then
-        table.insert(out, pandoc.Str(s:sub(i)))
+      if i <= text_len then
+        table.insert(out, pandoc.Str(text:sub(i)))
       end
       break
     end
     
-    -- Add text before digits
     if digit_start > i then
-      table.insert(out, pandoc.Str(s:sub(i, digit_start - 1)))
+      table.insert(out, pandoc.Str(text:sub(i, digit_start - 1)))
     end
     
-    -- Find end of digit sequence
     local digit_end = digit_start
-    while digit_end <= N and s:sub(digit_end, digit_end):match('[0-9]') do
+    while digit_end <= text_len and text:sub(digit_end, digit_end):match('[0-9]') do
       digit_end = digit_end + 1
     end
     digit_end = digit_end - 1
     
-    local digits = s:sub(digit_start, digit_end)
+    local digits = text:sub(digit_start, digit_end)
     local digit_count = #digits
     
     if digit_count == 2 then
-      -- 2-digit: wrap with \small{\tatechuyoko*{}}
       table.insert(out, make_tatechuyoko(digits))
     else
-      -- 1-digit or 3+ digits: convert to full-width
       table.insert(out, pandoc.Str(convert_to_fullwidth(digits)))
     end
     
     i = digit_end + 1
   end
   
-  if #out == 0 then
-    return pandoc.Str('')
-  elseif #out == 1 then
-    return out[1]
-  else
-    return out
-  end
+  return out
 end
 
-return {
+local function number_Str(elem)
+  return utils.process_str_element(elem, process_number_text)
+end
+
+return utils.latex_only_filter({
   Str = number_Str,
-}
+})

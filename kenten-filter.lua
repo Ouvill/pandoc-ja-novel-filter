@@ -14,48 +14,19 @@
 -- Examples:
 --   おじいさんは山へ《《柴刈り》》に出かけました。 -> おじいさんは山へ\\kenten{柴刈り}に出かけました。
 
-if not FORMAT:match('latex') then return {} end
+local utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''):gsub('[^/\\]*$', '') .. 'utils.lua')
 
-local function make_kenten(s)
-  return pandoc.RawInline('latex', string.format('\\kenten{%s}', s))
+local function make_kenten(content)
+  return utils.latex_inline(string.format('\\kenten{%s}', content))
 end
 
 local function kenten_Str(elem)
-  local s = elem.text
-  if not s:find('《《', 1, true) or not s:find('》》', 1, true) then return nil end
-
-  local out = {}
-  local i, N = 1, #s
-  local OPEN, CLOSE = '《《', '》》'
-  local LO, LC = #OPEN, #CLOSE
-
-  while i <= N do
-    local ob = s:find(OPEN, i, true)
-    if not ob then
-      -- No more markers
-      if i <= N then table.insert(out, pandoc.Str(s:sub(i))) end
-      break
-    end
-    -- Emit text before marker
-    if ob > i then table.insert(out, pandoc.Str(s:sub(i, ob - 1))) end
-
-    local cb = s:find(CLOSE, ob + LO, true)
-    if not cb then
-      -- Unbalanced: emit the rest as-is
-      table.insert(out, pandoc.Str(s:sub(ob)))
-      break
-    end
-
-    local content = s:sub(ob + LO, cb - 1)
-    table.insert(out, make_kenten(content))
-    i = cb + LC
-  end
-
-  if #out == 0 then return pandoc.Str('') end
-  if #out == 1 then return out[1] end
-  return out
+  return utils.process_str_element(elem, function(text)
+    local result = utils.process_paired_markers(text, '《《', '》》', make_kenten)
+    return result
+  end)
 end
 
-return {
+return utils.latex_only_filter({
   Str = kenten_Str,
-}
+})
