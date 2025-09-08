@@ -4,4 +4,8 @@
 
 local tatechuyoko_utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''):gsub('[^/\\]*$', '') .. 'tatechuyoko-utils.lua')
 
-Para = tatechuyoko_utils.create_tatechuyoko_filter('[0-9]', 'half-width numbers')
+local filter_func = tatechuyoko_utils.create_tatechuyoko_filter('[0-9]', 'half-width numbers')
+
+return {
+  { Para = filter_func, Header = filter_func }
+}

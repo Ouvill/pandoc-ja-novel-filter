@@ -15,6 +15,8 @@ return {
   load_filter('dakuten.lua'),
   load_filter('kenten-filter.lua'),
   load_filter('kakuyomu_ruby.lua'),
-  load_filter('number-filter.lua'),
+  load_filter('tatechuyoko/halfwidth-letter-filter.lua')[1],
+  load_filter('tatechuyoko/halfwidth-number-filter.lua')[1],
+  load_filter('tatechuyoko/halfwidth-symbol-filter.lua')[1],
   load_filter('break-filter.lua')[1]
 }

@@ -52,37 +52,47 @@ local function process_str_text(text, pattern)
   return result
 end
 
--- Generic tatechuyoko processor for Para elements
+-- Helper function to process content list (shared by Para and Header)
+local function process_content(content, pattern)
+  local modified = false
+  local new_content = {}
+  
+  for _, elem in ipairs(content) do
+    if elem.t == "Str" and elem.text:find(pattern) then
+      local processed = process_str_text(elem.text, pattern)
+      for _, item in ipairs(processed) do
+        table.insert(new_content, item)
+      end
+      modified = true
+    else
+      table.insert(new_content, elem)
+    end
+  end
+  
+  return new_content, modified
+end
+
+-- Generic tatechuyoko processor for Para and Header elements
 -- pattern: Lua pattern for matching target characters  
 -- description: For debugging/comments
 function tatechuyoko_utils.create_tatechuyoko_filter(pattern, description)
-  return function(para)
+  return function(elem)
     if FORMAT ~= "latex" then
       return nil
     end
     
-    if para.t ~= "Para" then
-      return nil
-    end
-    
-    local modified = false
-    local new_content = {}
-    
-    for _, elem in ipairs(para.content) do
-      if elem.t == "Str" and elem.text:find(pattern) then
-        local processed = process_str_text(elem.text, pattern)
-        for _, item in ipairs(processed) do
-          table.insert(new_content, item)
-        end
-        modified = true
-      else
-        table.insert(new_content, elem)
+    if elem.t == "Para" then
+      local new_content, modified = process_content(elem.content, pattern)
+      if modified then
+        return pandoc.Para(new_content)
+      end
+    elseif elem.t == "Header" then
+      local new_content, modified = process_content(elem.content, pattern)
+      if modified then
+        return pandoc.Header(elem.level, new_content, elem.attr)
       end
     end
     
-    if modified then
-      return pandoc.Para(new_content)
-    end
     return nil
   end
 end
