@@ -7,5 +7,5 @@ local tatechuyoko_utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or
 local filter_func = tatechuyoko_utils.create_tatechuyoko_filter('[!?]', 'half-width symbols (! and ?)')
 
 return {
-  { Para = filter_func, Header = filter_func }
+  { Para = filter_func, Header = filter_func, Plain = filter_func }
 }
