@@ -8,43 +8,34 @@
 
 ## フィルタ構成
 
-### 統合フィルタ（推奨）
+- **halfwidth-letter-filter.lua** - 半角英字処理（A-Z, a-z）
+- **halfwidth-number-filter.lua** - 半角数字処理（0-9）
+- **halfwidth-symbol-filter.lua** - 半角記号処理（!と?のみ）
+- **tatechuyoko-utils.lua** - 共通ユーティリティ関数
 
-各文字種の完全な処理を1つのフィルタで行います：
+## 処理仕様
 
-- **halfwidth-letter-filter.lua** - 半角英字処理
-- **halfwidth-number-filter.lua** - 半角数字処理  
-- **halfwidth-symbol-filter.lua** - 半角記号処理
+### 文字種別処理
 
-### 分割フィルタ（高度な用途）
+- **半角英字**: A-Z, a-z
+- **半角数字**: 0-9
+- **半角記号**: ! と ? のみ（LaTeX干渉回避のため）
 
-処理を2段階に分けた柔軟なアプローチ：
-
-#### 2文字グルーピング
-- **two-char-letter-filter.lua** - 2文字英字グループ化
-- **two-char-number-filter.lua** - 2文字数字グループ化
-- **two-char-symbol-filter.lua** - 2文字記号グループ化
-
-#### 基本処理
-- **basic-letter-filter.lua** - 全英字を個別処理
-- **basic-number-filter.lua** - 全数字を個別処理
-- **basic-symbol-filter.lua** - 全記号を個別処理
-
-### ユーティリティ
-
-- **tatechuyoko-utils.lua** - 統合フィルタ用共通関数
-- **two-char-tatechuyoko-utils.lua** - 2文字処理用関数
-- **basic-tatechuyoko-utils.lua** - 基本処理用関数
-
-## 動作仕様
+### 文字数別処理ルール
 
 - **1文字**: `a` → `\tatechuyoko*{a}`
-- **2文字連続のみ**: `ab` → `{\small\tatechuyoko*{ab}}`
+- **2文字連続**: `ab` → `{\small\tatechuyoko*{ab}}`
 - **3文字以上**: `abc` → `\tatechuyoko*{a}\tatechuyoko*{b}\tatechuyoko*{c}`
+
+### 処理対象要素
+
+- **段落（Para）**: 段落内の直接子Str要素
+- **見出し（Header）**: 見出し内の直接子Str要素
+- **HTML要素内は処理されない**: `<span>abc</span>` → 処理対象外（markdown形式）
 
 ## 使用方法
 
-### 統合フィルタ（簡単）
+### 個別フィルタ使用
 
 ```bash
 pandoc input.md \
@@ -54,30 +45,23 @@ pandoc input.md \
   -t latex
 ```
 
-### 分割フィルタ（詳細制御）
+### ja-novel-filter統合使用（推奨）
 
 ```bash
-pandoc input.md \
-  --lua-filter=tatechuyoko/two-char-letter-filter.lua \
-  --lua-filter=tatechuyoko/two-char-number-filter.lua \
-  --lua-filter=tatechuyoko/two-char-symbol-filter.lua \
-  --lua-filter=tatechuyoko/basic-letter-filter.lua \
-  --lua-filter=tatechuyoko/basic-number-filter.lua \
-  --lua-filter=tatechuyoko/basic-symbol-filter.lua \
-  -t latex
+pandoc input.md --lua-filter=ja-novel-filter.lua -t latex
 ```
 
-## 注意事項
+## 制限事項
 
-- LaTeX出力形式でのみ動作します
-- 分割フィルタ使用時は、2文字処理を基本処理より先に実行してください
+### 対応形式
+- **LaTeX出力のみ**: `-t latex` でのみ動作
+- **markdown形式推奨**: HTML要素の除外が正しく動作
 
-### HTML要素の処理について
+### GFM形式での制限
+⚠️ **GFM形式（`-f gfm`）使用時の注意**: 
+HTML要素（`<span>`など）内の文字も処理されてしまいます。
+markdown形式（`-f markdown`）の使用を推奨します。
 
-⚠️ **重要**: 現在の実装では、HTML要素（`<span>`など）内の文字も処理対象となります。
-
-これはPandocのフィルタ処理の仕組み上の制限です。HTML要素内の文字を処理から除外したい場合は、以下の方法をお試しください：
-
-1. **HTMLフォーマットでの入力を避ける**
-2. **処理したくない文字を全角文字に変更する**
-3. **LaTeX出力後に手動で修正する**
+### 記号処理の制限
+LaTeX構文との干渉を避けるため、処理対象記号を!と?のみに限定しています。
+`@`, `#`, `$`, `%`, `&`, `{`, `}`, `_`, `^`などは処理されません。

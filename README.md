@@ -9,7 +9,7 @@
 - **濁点サポート**: 結合濁点文字を適切なLaTeXコマンドに変換
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
-- **数字フォーマット**: 半角数字を独自のルールに従って変換
+- **縦中横処理**: 半角英数字記号を縦書きに適した縦中横処理
 - **改行・場面転換**: 全角スペース行を適切な間隔に変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
@@ -54,15 +54,23 @@ pandoc --version
 - 入力: `《《重要》》な情報`
 - 出力: `\kenten{重要}な情報`
 
-### 4. number-filter.lua（数字フィルタ）
+### 4. tatechuyoko/（縦中横フィルタ）
 
-半角数字を独自のルールに従って変換します。2桁の数字は縦組みに適した`{\small\tatechuyoko*{}}`で囲み、1桁または3桁以上の数字は全角数字に変換します。
+半角英数字記号を縦書きに適した縦中横処理で変換します。
 
-**例:**
-- 1桁: `5` → `５`
-- 2桁: `12` → `{\small\tatechuyoko*{12}}`
-- 3桁以上: `123` → `１２３`
-- 混合: `今日は12月3日です` → `今日は{\small\tatechuyoko*{12}}月３日です`
+**halfwidth-letter-filter.lua（英字）:**
+- 1文字: `a` → `\tatechuyoko*{a}`
+- 2文字連続: `ab` → `{\small\tatechuyoko*{ab}}`
+- 3文字以上: `abc` → `\tatechuyoko*{a}\tatechuyoko*{b}\tatechuyoko*{c}`
+
+**halfwidth-number-filter.lua（数字）:**
+- 1文字: `5` → `\tatechuyoko*{5}`
+- 2文字連続: `12` → `{\small\tatechuyoko*{12}}`
+- 3文字以上: `123` → `\tatechuyoko*{1}\tatechuyoko*{2}\tatechuyoko*{3}`
+
+**halfwidth-symbol-filter.lua（記号）:**
+- !と?のみ処理: `!` → `\tatechuyoko*{!}`
+- LaTeX問題記号は除外: `@#$%&`など
 
 ### 5. break-filter.lua（改行・場面転換フィルタ）
 
@@ -82,8 +90,10 @@ pandoc --version
 1. dakuten.lua
 2. kenten-filter.lua  
 3. kakuyomu_ruby.lua
-4. number-filter.lua
-5. break-filter.lua
+4. tatechuyoko/halfwidth-letter-filter.lua
+5. tatechuyoko/halfwidth-number-filter.lua
+6. tatechuyoko/halfwidth-symbol-filter.lua
+7. break-filter.lua
 
 ## 使用方法
 
@@ -147,7 +157,7 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 
 さらに大きな時間の流れを表現。
 
-今日は12月3日、気温は25度です。番号は1番から99番まで、1000個あります。
+今日は12月3日、気温は25度です。Chapter 1: Test! これはABC？
 ```
 
 これは、プロフェッショナルな日本語小説組版のための適切なLaTeXコマンドに変換されます。
