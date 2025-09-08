@@ -63,4 +63,12 @@ function two_char_tatechuyoko_utils.create_two_char_tatechuyoko_filter(pattern, 
   end
 end
 
+-- Function to create a Span handler that preserves span elements unchanged
+function two_char_tatechuyoko_utils.create_span_handler()
+  return function(elem)
+    -- Return span element unchanged to prevent processing of contents
+    return elem
+  end
+end
+
 return two_char_tatechuyoko_utils

@@ -6,7 +6,5 @@ local basic_utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''):g
 
 Str = basic_utils.create_basic_tatechuyoko_filter('[!-/:-@%[-`{-~]', 'basic symbols')
 
--- Skip HTML span elements
-function Span(elem)
-  return nil
-end
+-- Preserve HTML span elements unchanged
+Span = basic_utils.create_span_handler()

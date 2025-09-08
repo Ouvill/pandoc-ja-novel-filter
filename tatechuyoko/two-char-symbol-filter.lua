@@ -6,7 +6,5 @@ local two_char_utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''
 
 Str = two_char_utils.create_two_char_tatechuyoko_filter('[!-/:-@%[-`{-~]', 'two-char symbols')
 
--- Skip HTML span elements
-function Span(elem)
-  return nil
-end
+-- Preserve HTML span elements unchanged
+Span = two_char_utils.create_span_handler()

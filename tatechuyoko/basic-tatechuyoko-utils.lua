@@ -47,4 +47,12 @@ function basic_tatechuyoko_utils.create_basic_tatechuyoko_filter(pattern, descri
   end
 end
 
+-- Function to create a Span handler that preserves span elements unchanged
+function basic_tatechuyoko_utils.create_span_handler()
+  return function(elem)
+    -- Return span element unchanged to prevent processing of contents
+    return elem
+  end
+end
+
 return basic_tatechuyoko_utils
