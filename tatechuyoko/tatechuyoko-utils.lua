@@ -91,6 +91,11 @@ function tatechuyoko_utils.create_tatechuyoko_filter(pattern, description)
       if modified then
         return pandoc.Header(elem.level, new_content, elem.attr)
       end
+    elseif elem.t == "Plain" then
+      local new_content, modified = process_content(elem.content, pattern)
+      if modified then
+        return pandoc.Plain(new_content)
+      end
     end
     
     return nil
