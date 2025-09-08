@@ -1,0 +1,151 @@
+-- test_voiced_mark_filter.lua
+-- Unit tests for voiced-mark-filter.lua (U+309B only)
+
+-- Arrange: stub pandoc environment and load filter
+FORMAT = 'latex'
+
+local pandoc = {
+  Str = function(s) return { t = 'Str', text = s } end,
+  RawInline = function(fmt, s) return { t = 'RawInline', format = fmt, text = s } end,
+}
+_G.pandoc = pandoc
+local filter = dofile((... and (...):gsub("[^/\\]+$", "voiced-mark-filter.lua")) or "voiced-mark-filter.lua")
+local Str = filter.Str
+
+-- Simple test framework
+local fails = 0
+local tests_run = 0
+
+local function assert_true(cond, msg)
+  tests_run = tests_run + 1
+  if not cond then
+    fails = fails + 1
+    io.stderr:write("FAIL: ", msg or "(no message)", "\n")
+  end
+end
+
+local function assert_equal(actual, expected, msg)
+  tests_run = tests_run + 1
+  if actual ~= expected then
+    fails = fails + 1
+    io.stderr:write(("FAIL: %s\n  expected: %s\n  actual:   %s\n")
+      :format(msg or "(no message)", tostring(expected), tostring(actual)))
+  end
+end
+
+local function assert_len(tbl, expected, msg)
+  tests_run = tests_run + 1
+  if #tbl ~= expected then
+    fails = fails + 1
+    io.stderr:write(("FAIL: %s\n  expected length: %d\n  actual length:   %d\n")
+      :format(msg or "(no message)", expected, #tbl))
+  end
+end
+
+local function is_elem(x)
+  return type(x) == 'table' and x.t ~= nil
+end
+
+local function is_array_of_elems(x)
+  return type(x) == 'table' and x.t == nil and (x[1] == nil or is_elem(x[1]))
+end
+
+local function flatten(result)
+  if result == nil then return nil end
+  if is_elem(result) then return { result } end
+  if is_array_of_elems(result) then return result end
+  error("Unexpected result shape from Str()")
+end
+
+local function make_elem(s)
+  return { t = 'Str', text = s }
+end
+
+local voiced = "\227\130\155"  -- U+309B voiced sound mark (゛)
+local combining_dakuten = "\227\130\153" -- U+3099 combining dakuten
+
+-- Tests
+
+-- 1) No voiced mark: unchanged (nil)
+do
+  local elem = make_elem("ただのテキスト")
+  local out = Str(elem)
+  assert_true(out == nil, "No voiced mark: should return nil (unchanged)")
+end
+
+-- 2) Single voiced mark: あ + ゛ -> \dakuten{あ}
+do
+  local input = "あ" .. voiced
+  local elem = make_elem(input)
+  local out = Str(elem)
+  local arr = flatten(out)
+  assert_len(arr, 1, "Single voiced mark: should return a single element")
+  assert_equal(arr[1].t, "RawInline", "Single voiced mark: element type should be RawInline")
+  assert_equal(arr[1].format, "latex", "Single voiced mark: RawInline format should be latex")
+  assert_equal(arr[1].text, "\\dakuten{あ}", "Single voiced mark: latex text mismatch")
+end
+
+-- 3) Combining dakuten should NOT be processed (should return nil)
+do
+  local input = "あ" .. combining_dakuten
+  local elem = make_elem(input)
+  local out = Str(elem)
+  assert_true(out == nil, "Combining dakuten: should return nil (not processed)")
+end
+
+-- 4) Multiple voiced marks: か゛き゛ -> \dakuten{か}\dakuten{き}
+do
+  local input = "か" .. voiced .. "き" .. voiced
+  local elem = make_elem(input)
+  local out = Str(elem)
+  local arr = flatten(out)
+  assert_len(arr, 2, "Multiple voiced marks: should return two elements")
+  assert_equal(arr[1].t, "RawInline", "Multiple voiced marks: first element type")
+  assert_equal(arr[1].text, "\\dakuten{か}", "Multiple voiced marks: first latex text")
+  assert_equal(arr[2].t, "RawInline", "Multiple voiced marks: second element type")
+  assert_equal(arr[2].text, "\\dakuten{き}", "Multiple voiced marks: second latex text")
+end
+
+-- 5) Mixed with surrounding text: "A" .. あ゛ .. "B"
+do
+  local input = "A" .. "あ" .. voiced .. "B"
+  local elem = make_elem(input)
+  local out = Str(elem)
+  local arr = flatten(out)
+  assert_len(arr, 3, "Mixed text: should return three elements")
+  assert_equal(arr[1].t, "Str", "Mixed text: first element type")
+  assert_equal(arr[1].text, "A", "Mixed text: first text")
+  assert_equal(arr[2].t, "RawInline", "Mixed text: second element type")
+  assert_equal(arr[2].text, "\\dakuten{あ}", "Mixed text: second latex text")
+  assert_equal(arr[3].t, "Str", "Mixed text: third element type")
+  assert_equal(arr[3].text, "B", "Mixed text: third text")
+end
+
+-- 6) Empty string: unchanged
+do
+  local elem = make_elem("")
+  local out = Str(elem)
+  assert_true(out == nil, "Empty string: should return nil (unchanged)")
+end
+
+-- 7) 4-byte UTF-8 base char + voiced mark -> \dakuten{base}
+do
+  local base4 = "𠀋" -- U+2000B (4-byte in UTF-8)
+  local input = base4 .. voiced
+  local elem = make_elem(input)
+  local out = Str(elem)
+  local arr = flatten(out)
+  assert_len(arr, 1, "4-byte base: should return a single element")
+  assert_equal(arr[1].t, "RawInline", "4-byte base: element type should be RawInline")
+  assert_equal(arr[1].format, "latex", "4-byte base: RawInline format should be latex")
+  assert_equal(arr[1].text, "\\dakuten{" .. base4 .. "}", "4-byte base: latex text mismatch")
+end
+
+-- Summary
+if fails == 0 then
+  print(("OK - %d assertions"):format(tests_run))
+  os.exit(0)
+else
+  io.stderr:write(("FAILED - %d failed, %d total assertions\n"):format(fails, tests_run))
+  os.exit(1)
+end

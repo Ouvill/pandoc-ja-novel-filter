@@ -9,8 +9,22 @@ local pandoc = {
   RawInline = function(fmt, s) return { t = 'RawInline', format = fmt, text = s } end,
 }
 _G.pandoc = pandoc
-local filter = dofile((... and (...):gsub("[^/\\]+$", "dakuten.lua")) or "dakuten.lua")
-local Str = filter.Str
+local filter_array = dofile((... and (...):gsub("[^/\\]+$", "dakuten.lua")) or "dakuten.lua")
+
+-- Create a composite Str function that applies both filters in sequence
+local function Str(elem)
+  -- Try each filter in turn, return the first one that produces a result
+  for _, filter in ipairs(filter_array) do
+    if filter and filter.Str then
+      local result = filter.Str(elem)
+      if result ~= nil then
+        return result
+      end
+    end
+  end
+  -- If no filter produced a result, return nil (unchanged)
+  return nil
+end
 
 -- Simple test framework
 local fails = 0

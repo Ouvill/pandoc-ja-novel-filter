@@ -12,7 +12,8 @@ end
 
 -- Return array of filters (Pandoc's preferred method)
 return {
-  load_filter('dakuten.lua'),
+  load_filter('combining-dakuten-filter.lua'),
+  load_filter('voiced-mark-filter.lua'),
   load_filter('kenten-filter.lua'),
   load_filter('kakuyomu_ruby.lua'),
   load_filter('tatechuyoko/halfwidth-letter-filter.lua')[1],
