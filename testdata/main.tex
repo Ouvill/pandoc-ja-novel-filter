@@ -1,0 +1,21 @@
+\documentclass[tate,book,paper=a6,fontsize=10pt,onecolumn,
+% ぶら下げ組を有効にする
+hanging_punctuation]{jlreq}
+\usepackage{pxrubrica}
+\usepackage{bxghost}
+\usepackage{hyperref} % ハイパーリンク
+
+% Dakuten command
+\newcommand{\dakuten}[1]{%
+    \jghostguarded{%
+        \leavevmode\hbox to 1\zw{%
+            \rensuji{\hbox to 1\zw{#1\hspace*{-.25\zw}゛}}%
+        }%
+    }%
+}
+
+
+
+\begin{document}
+\include{halfwidth-test-output.tex}
+\end{document}

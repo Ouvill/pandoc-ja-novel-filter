@@ -1,0 +1,17 @@
+# LuaLaTeX を使用
+$pdf_mode = 4;
+$lualatex = 'lualatex --cmdx -file-line-error -synctex=1 -interaction=nonstopmode -halt-on-error %O %S';
+
+# 出力ディレクトリを指定し、存在しない場合は作成
+$out_dir = 'build';
+system("mkdir -p $out_dir") unless -d $out_dir;
+
+# 自動的にPDFビューアを開く（オプション）
+$pdf_previewer = 'start';
+
+# 連続監視モード用の設定
+$sleep_time = 2;
+$max_repeat = 10;
+
+# 一時ファイルの自動削除
+$clean_ext = 'fdb_latexmk fls log aux bbl bcf blg idx ilg ind lof lot out toc run.xml synctex.gz';
