@@ -11,6 +11,7 @@
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
 - **縦中横処理**: 半角英数字記号を縦書きに適した縦中横処理
 - **改行・場面転換**: 全角スペース行を適切な間隔に変換
+- **波線処理**: 連続する波線（〜）を波ダッシュ（〰）に変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
 ## インストール
@@ -95,6 +96,16 @@ pandoc --version
 6. tatechuyoko/halfwidth-symbol-filter.lua
 7. break-filter.lua
 
+### 7. wave-dash-filter.lua（波線フィルタ）
+
+連続する波線（〜）を波ダッシュ（〰）に変換します。単独の波線は変換しません。
+
+**例:**
+- 入力: `〜` → `〜`（変更なし）
+- 入力: `〜〜` → `〰〰`
+- 入力: `〜〜〜` → `〰〰〰`
+- 入力: `あ〜〜いう` → `あ〰〰いう`
+
 ## 使用方法
 
 ### 基本的な使用方法
@@ -104,6 +115,7 @@ pandoc --version
 pandoc input.md --lua-filter=dakuten.lua -o output.tex
 pandoc input.md --lua-filter=number-filter.lua -o output.tex
 pandoc input.md --lua-filter=break-filter.lua -o output.tex
+pandoc input.md --lua-filter=wave-dash-filter.lua -o output.tex
 ```
 
 **すべてのフィルタ（推奨）:**
@@ -158,6 +170,8 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 さらに大きな時間の流れを表現。
 
 今日は12月3日、気温は25度です。Chapter 1: Test! これはABC？
+
+長い波線〜〜〜で間を表現したり、短い波線〜で語尾を伸ばしたりする。
 ```
 
 これは、プロフェッショナルな日本語小説組版のための適切なLaTeXコマンドに変換されます。
@@ -172,6 +186,7 @@ lua5.3 tests/kakuyomu_ruby_test.lua
 lua5.3 tests/kenten_filter_test.lua
 lua5.3 tests/number_filter_test.lua
 lua5.3 tests/break_filter_test.lua
+lua5.3 tests/wave_dash_filter_test.lua
 ```
 
 ## 要件
