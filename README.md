@@ -181,12 +181,12 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 すべてのフィルタが正しく動作することを確認するためのテストスイートを実行：
 
 ```bash
-lua5.3 tests/dakuten_test.lua
-lua5.3 tests/kakuyomu_ruby_test.lua  
-lua5.3 tests/kenten_filter_test.lua
-lua5.3 tests/number_filter_test.lua
-lua5.3 tests/break_filter_test.lua
-lua5.3 tests/wave_dash_filter_test.lua
+lua tests/dakuten_test.lua
+lua tests/kakuyomu_ruby_test.lua  
+lua tests/kenten_filter_test.lua
+lua tests/number_filter_test.lua
+lua tests/break_filter_test.lua
+lua tests/wave_dash_filter_test.lua
 ```
 
 ## 要件
