@@ -45,6 +45,8 @@ pandoc input.md --lua-filter=dakuten.lua -o output.tex
 5. **新機能追加時は対応するテストファイルも作成**
 6. LaTeX出力にはpxrubrica, bxghostパッケージが必要
 7. HTML要素内の文字は処理しない設計（markdown形式推奨）
+8. **フィルタファイル冒頭に仕様コメント記述必須**: 処理内容、変換例を含む説明
+9. **コメントの保守**: コード変更時は仕様コメントも同時に更新し、陳腐化を防ぐ
 
 ## 縦中横フィルタ（tatechuyoko/）について
 - 統合フィルタ方式を採用（Para/Header要素レベル処理）
