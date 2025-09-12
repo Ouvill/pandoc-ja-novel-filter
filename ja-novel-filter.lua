@@ -19,5 +19,6 @@ return {
   load_filter('tatechuyoko/halfwidth-letter-filter.lua')[1],
   load_filter('tatechuyoko/halfwidth-number-filter.lua')[1],
   load_filter('tatechuyoko/halfwidth-symbol-filter.lua')[1],
+  load_filter('continuouswave-filter.lua')[1],
   load_filter('break-filter.lua')[1]
 }
