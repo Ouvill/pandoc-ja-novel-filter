@@ -11,7 +11,7 @@
 -- あ〜〜いう -> あ\continuouswave{2}いう
 
 local function replace_continuous_waves(str)
-    local result = ""
+    local result = {}
     local i = 1
     while i <= utf8.len(str) do
         local char = utf8.char(utf8.codepoint(str, utf8.offset(str, i)))
@@ -28,13 +28,17 @@ local function replace_continuous_waves(str)
                 end
             end
             if count >= 2 then
-                result = result .. "\\continuouswave{" .. count .. "}"
+                if FORMAT == "latex" then
+                    table.insert(result, pandoc.RawInline('latex', '\\continuouswave{' .. count .. '}'))
+                else
+                    table.insert(result, pandoc.Str("〜〜" .. string.rep("〜", count - 2)))
+                end
             else
-                result = result .. "〜"
+                table.insert(result, pandoc.Str("〜"))
             end
             i = i + count
         else
-            result = result .. char
+            table.insert(result, pandoc.Str(char))
             i = i + 1
         end
     end
@@ -42,12 +46,18 @@ local function replace_continuous_waves(str)
 end
 
 local function process_inlines(inlines)
+    local new_inlines = {}
     for i = 1, #inlines do
         if inlines[i].t == "Str" then
-            inlines[i].text = replace_continuous_waves(inlines[i].text)
+            local processed = replace_continuous_waves(inlines[i].text)
+            for _, item in ipairs(processed) do
+                table.insert(new_inlines, item)
+            end
+        else
+            table.insert(new_inlines, inlines[i])
         end
     end
-    return inlines
+    return new_inlines
 end
 
 function Para(el)

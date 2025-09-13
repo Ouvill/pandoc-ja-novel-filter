@@ -1,3 +1,15 @@
+-- Mock pandoc module for testing
+pandoc = {}
+function pandoc.Str(text)
+    return {t = "Str", text = text}
+end
+function pandoc.RawInline(format, text)
+    return {t = "RawInline", format = format, text = text}
+end
+
+-- Set FORMAT for testing
+FORMAT = "latex"
+
 dofile("continuouswave-filter.lua")
 
 local function create_str(text)
@@ -6,6 +18,19 @@ end
 
 local function create_para(inlines)
     return {t = "Para", content = inlines}
+end
+
+-- Helper function to convert element array back to text for testing
+local function elements_to_text(elements)
+    local result = ""
+    for _, elem in ipairs(elements) do
+        if elem.t == "Str" then
+            result = result .. elem.text
+        elseif elem.t == "RawInline" then
+            result = result .. elem.text
+        end
+    end
+    return result
 end
 
 local function test_continuous_wave_replacement()
@@ -29,8 +54,8 @@ local function test_continuous_wave_replacement()
         local input_text, expected = test[1], test[2]
         local para = create_para({create_str(input_text)})
         local result = Para(para)
-        local actual = result.content[1].text
-        
+        local actual = elements_to_text(result.content)
+
         total_assertions = total_assertions + 1
         if actual == expected then
             passed_assertions = passed_assertions + 1
@@ -48,8 +73,8 @@ local function test_plain_element()
     local plain = {t = "Plain", content = {create_str("〜〜〜テスト〜〜")}}
     local result = Plain(plain)
     local expected = "\\continuouswave{3}テスト\\continuouswave{2}"
-    local actual = result.content[1].text
-    
+    local actual = elements_to_text(result.content)
+
     if actual == expected then
         print("✓ Plain element test passed")
         return true
@@ -63,8 +88,8 @@ local function test_header_element()
     local header = {t = "Header", content = {create_str("見出し〜〜〜")}}
     local result = Header(header)
     local expected = "見出し\\continuouswave{3}"
-    local actual = result.content[1].text
-    
+    local actual = elements_to_text(result.content)
+
     if actual == expected then
         print("✓ Header element test passed")
         return true
