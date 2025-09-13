@@ -17,12 +17,13 @@ end
 
 -- Test helper function to run pandoc with multiple filters
 local function test_combined_filters(input)
-    local cmd = string.format('echo "%s" | pandoc --lua-filter=halfwidth-letter-filter.lua --lua-filter=halfwidth-number-filter.lua --lua-filter=halfwidth-symbol-filter.lua -f markdown -t latex 2>/dev/null', 
+    local cmd = string.format('echo -n "%s" | pandoc --lua-filter=tatechuyoko/halfwidth-letter-filter.lua --lua-filter=tatechuyoko/halfwidth-number-filter.lua --lua-filter=tatechuyoko/halfwidth-symbol-filter.lua -f markdown -t latex 2>/dev/null',
                              input)
     local handle = io.popen(cmd)
     local result = handle:read("*a")
     handle:close()
-    return result:gsub("\n$", "") -- Remove trailing newline
+    -- Remove newlines that pandoc adds for line wrapping in LaTeX output
+    return result:gsub("\n", "")
 end
 
 print("=== Combined Tatechuyoko Filter Tests ===")
@@ -41,15 +42,15 @@ if test_case("Single letter, number, symbol",
 end
 
 total = total + 1
-if test_case("Two each type", 
-             "{\\small\\tatechuyoko*{ab}}{\\small\\tatechuyoko*{12}}{\\small\\tatechuyoko*{!!}}",
+if test_case("Two each type",
+             "\\tatechuyoko*{a}\\tatechuyoko*{b}\\scalebox{1.0}[0.85]{\\tatechuyoko*{12}}\\scalebox{1.0}[0.85]{\\tatechuyoko*{!!}}",
              test_combined_filters("ab12!!")) then
     passed = passed + 1
 end
 
 total = total + 1
-if test_case("Three each type", 
-             "\\tatechuyoko*{a}\\tatechuyoko*{b}\\tatechuyoko*{c}\\tatechuyoko*{1}\\tatechuyoko*{2}\\tatechuyoko*{3}\\tatechuyoko*{!}\\tatechuyoko*{!}\\tatechuyoko*{!}",
+if test_case("Three each type",
+             "\\tatechuyoko*{a}\\tatechuyoko*{b}\\tatechuyoko*{c}\\tatechuyoko*{1}\\tatechuyoko*{2}\\tatechuyoko*{3}\\scalebox{1.0}[0.70]{\\tatechuyoko*{!!!}}",
              test_combined_filters("abc123!!!")) then
     passed = passed + 1
 end
@@ -69,15 +70,15 @@ if test_case("Separated sequences",
 end
 
 total = total + 1
-if test_case("Two-char sequences separated", 
-             "{\\small\\tatechuyoko*{ab}} {\\small\\tatechuyoko*{12}} {\\small\\tatechuyoko*{!!}}",
+if test_case("Two-char sequences separated",
+             "\\tatechuyoko*{a}\\tatechuyoko*{b} \\scalebox{1.0}[0.85]{\\tatechuyoko*{12}}\\scalebox{1.0}[0.85]{\\tatechuyoko*{!!}}",
              test_combined_filters("ab 12 !!")) then
     passed = passed + 1
 end
 
 total = total + 1
-if test_case("Complex mixed pattern", 
-             "テスト\\tatechuyoko*{A}\\tatechuyoko*{B}\\tatechuyoko*{C}データ{\\small\\tatechuyoko*{12}}番\\tatechuyoko*{!}\\tatechuyoko*{@}\\tatechuyoko*{#}",
+if test_case("Complex mixed pattern",
+             "テスト\\tatechuyoko*{A}\\tatechuyoko*{B}\\tatechuyoko*{C}データ\\scalebox{1.0}[0.85]{\\tatechuyoko*{12}}番\\tatechuyoko*{!}@\\#",
              test_combined_filters("テストABCデータ12番!@#")) then
     passed = passed + 1
 end
@@ -86,22 +87,22 @@ end
 print("\n--- Real World Examples ---")
 
 total = total + 1
-if test_case("Version number", 
-             "バージョン\\tatechuyoko*{v}\\tatechuyoko*{1}\\tatechuyoko*{.}\\tatechuyoko*{2}\\tatechuyoko*{.}\\tatechuyoko*{3}",
+if test_case("Version number",
+             "バージョン\\tatechuyoko*{v}\\tatechuyoko*{1}.\\tatechuyoko*{2}.\\tatechuyoko*{3}",
              test_combined_filters("バージョンv1.2.3")) then
     passed = passed + 1
 end
 
-total = total + 1  
-if test_case("Email-like pattern", 
-             "メール\\tatechuyoko*{u}\\tatechuyoko*{s}\\tatechuyoko*{e}\\tatechuyoko*{r}\\tatechuyoko*{@}\\tatechuyoko*{e}\\tatechuyoko*{x}\\tatechuyoko*{a}\\tatechuyoko*{m}\\tatechuyoko*{p}\\tatechuyoko*{l}\\tatechuyoko*{e}\\tatechuyoko*{.}\\tatechuyoko*{c}\\tatechuyoko*{o}\\tatechuyoko*{m}",
+total = total + 1
+if test_case("Email-like pattern",
+             "メール\\tatechuyoko*{u}\\tatechuyoko*{s}\\tatechuyoko*{e}\\tatechuyoko*{r}@\\tatechuyoko*{e}\\tatechuyoko*{x}\\tatechuyoko*{a}\\tatechuyoko*{m}\\tatechuyoko*{p}\\tatechuyoko*{l}\\tatechuyoko*{e}.\\tatechuyoko*{c}\\tatechuyoko*{o}\\tatechuyoko*{m}",
              test_combined_filters("メールuser@example.com")) then
     passed = passed + 1
 end
 
 total = total + 1
-if test_case("Price format", 
-             "価格\\tatechuyoko*{\\$}\\tatechuyoko*{1}\\tatechuyoko*{2}\\tatechuyoko*{3}\\tatechuyoko*{4}\\tatechuyoko*{.}\\tatechuyoko*{5}\\tatechuyoko*{6}",
+if test_case("Price format",
+             "価格\\$\\tatechuyoko*{1}\\tatechuyoko*{2}\\tatechuyoko*{3}\\tatechuyoko*{4}.\\scalebox{1.0}[0.85]{\\tatechuyoko*{56}}",
              test_combined_filters("価格\\$1234.56")) then
     passed = passed + 1
 end
