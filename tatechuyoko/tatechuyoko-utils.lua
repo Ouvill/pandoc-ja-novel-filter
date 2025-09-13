@@ -34,8 +34,9 @@ local function process_str_text(text, pattern, config)
       end
 
       if should_group then
-        -- Group the sequence
-        table.insert(result, pandoc.RawInline('latex', string.format('\\scalebox{1}[0.8]{\\tatechuyoko*{%s}}', sequence)))
+        -- Group the sequence with dynamic scaling based on length
+        local v_scale = math.max(0.4, 1.0 - (sequence_length - 1) * 0.15)  -- Start scaling from 2nd character (for vertical layout)
+        table.insert(result, pandoc.RawInline('latex', string.format('\\scalebox{1.0}[%.2f]{\\tatechuyoko*{%s}}', v_scale, sequence)))
       else
         -- Handle each character individually
         for k = i, j - 1 do

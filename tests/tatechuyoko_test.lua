@@ -70,7 +70,7 @@ if test_case("Single number", "\\tatechuyoko*{1}", test_filter("1", "halfwidth-n
 end
 
 total = total + 1
-if test_case("Two numbers", "\\scalebox{1}[0.8]{\\tatechuyoko*{12}}", test_filter("12", "halfwidth-number-filter")) then
+if test_case("Two numbers", "\\scalebox{1.0}[0.85]{\\tatechuyoko*{12}}", test_filter("12", "halfwidth-number-filter")) then
     passed = passed + 1
 end
 
@@ -95,12 +95,12 @@ if test_case("Single symbol", "\\tatechuyoko*{!}", test_filter("!", "halfwidth-s
 end
 
 total = total + 1
-if test_case("Two symbols", "\\scalebox{1}[0.8]{\\tatechuyoko*{!!}}", test_filter("!!", "halfwidth-symbol-filter")) then
+if test_case("Two symbols", "\\scalebox{1.0}[0.85]{\\tatechuyoko*{!!}}", test_filter("!!", "halfwidth-symbol-filter")) then
     passed = passed + 1
 end
 
 total = total + 1
-if test_case("Three symbols", "\\scalebox{1}[0.8]{\\tatechuyoko*{!!!}}",
+if test_case("Three symbols", "\\scalebox{1.0}[0.70]{\\tatechuyoko*{!!!}}",
              test_filter("!!!", "halfwidth-symbol-filter")) then
     passed = passed + 1
 end
