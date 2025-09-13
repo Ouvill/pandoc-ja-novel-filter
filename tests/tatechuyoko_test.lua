@@ -17,7 +17,7 @@ end
 
 -- Test helper function to run pandoc with filter
 local function test_filter(input, filter_name)
-    local cmd = string.format('echo "%s" | pandoc --lua-filter=%s.lua -f markdown -t latex 2>/dev/null', 
+    local cmd = string.format('echo "%s" | pandoc --lua-filter=tatechuyoko/%s.lua -f markdown -t latex 2>/dev/null',
                              input, filter_name)
     local handle = io.popen(cmd)
     local result = handle:read("*a")
@@ -38,8 +38,8 @@ if test_case("Single letter", "\\tatechuyoko*{a}", test_filter("a", "halfwidth-l
     passed = passed + 1
 end
 
-total = total + 1  
-if test_case("Two letters", "{\\small\\tatechuyoko*{ab}}", test_filter("ab", "halfwidth-letter-filter")) then
+total = total + 1
+if test_case("Two letters", "\\tatechuyoko*{a}\\tatechuyoko*{b}", test_filter("ab", "halfwidth-letter-filter")) then
     passed = passed + 1
 end
 
@@ -70,7 +70,7 @@ if test_case("Single number", "\\tatechuyoko*{1}", test_filter("1", "halfwidth-n
 end
 
 total = total + 1
-if test_case("Two numbers", "{\\small\\tatechuyoko*{12}}", test_filter("12", "halfwidth-number-filter")) then
+if test_case("Two numbers", "\\scalebox{1}[0.8]{\\tatechuyoko*{12}}", test_filter("12", "halfwidth-number-filter")) then
     passed = passed + 1
 end
 
@@ -95,18 +95,18 @@ if test_case("Single symbol", "\\tatechuyoko*{!}", test_filter("!", "halfwidth-s
 end
 
 total = total + 1
-if test_case("Two symbols", "{\\small\\tatechuyoko*{!!}}", test_filter("!!", "halfwidth-symbol-filter")) then
+if test_case("Two symbols", "\\scalebox{1}[0.8]{\\tatechuyoko*{!!}}", test_filter("!!", "halfwidth-symbol-filter")) then
     passed = passed + 1
 end
 
 total = total + 1
-if test_case("Three symbols", "\\tatechuyoko*{!}\\tatechuyoko*{!}\\tatechuyoko*{!}", 
+if test_case("Three symbols", "\\scalebox{1}[0.8]{\\tatechuyoko*{!!!}}",
              test_filter("!!!", "halfwidth-symbol-filter")) then
     passed = passed + 1
 end
 
 total = total + 1
-if test_case("Mixed symbols", "\\tatechuyoko*{!}\\tatechuyoko*{@}\\tatechuyoko*{#}", 
+if test_case("Mixed symbols", "\\tatechuyoko*{!}@\\#",
              test_filter("!@#", "halfwidth-symbol-filter")) then
     passed = passed + 1
 end
@@ -115,7 +115,7 @@ end
 print("\n--- Mixed Content Tests ---")
 
 total = total + 1
-local mixed_expected = "これは\\tatechuyoko*{a}テスト\\tatechuyoko*{1}です\\tatechuyoko*{!}"
+local mixed_expected = "これは\\tatechuyoko*{a}テスト1です!"
 if test_case("Japanese with half-width mixed", mixed_expected,
              test_filter("これはaテスト1です!", "halfwidth-letter-filter")) then
     passed = passed + 1

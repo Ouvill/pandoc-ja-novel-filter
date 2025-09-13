@@ -4,7 +4,9 @@
 
 local tatechuyoko_utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''):gsub('[^/\\]*$', '') .. 'tatechuyoko-utils.lua')
 
-local filter_func = tatechuyoko_utils.create_tatechuyoko_filter('[A-Za-z]', 'half-width letters')
+-- Letter config: never group consecutive letters (individual processing only)
+local letter_config = {group_lengths = {}}
+local filter_func = tatechuyoko_utils.create_tatechuyoko_filter('[A-Za-z]', letter_config, 'half-width letters')
 
 return {
   { Para = filter_func, Header = filter_func, Plain = filter_func }
