@@ -24,7 +24,7 @@ local function process_str_text(text, pattern)
       
       if sequence_length == 2 then
         -- Exactly 2 consecutive characters - group them
-        table.insert(result, pandoc.RawInline('latex', string.format('{\\small\\tatechuyoko*{%s}}', sequence)))
+        table.insert(result, pandoc.RawInline('latex', string.format('\\scalebox{1}[0.8]{\\tatechuyoko*{%s}}', sequence)))
       else
         -- 1 char or 3+ chars - handle each character individually
         for k = i, j - 1 do
