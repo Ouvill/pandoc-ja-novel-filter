@@ -12,20 +12,18 @@
   - `halfwidth-letter-filter.lua`: 半角英字の縦中横処理
   - `halfwidth-number-filter.lua`: 半角数字の縦中横処理
   - `halfwidth-symbol-filter.lua`: 半角記号の縦中横処理（!と?のみ）
-- `break-filter.lua`: 改行・場面転換処理
 - `utils.lua`: 共通ユーティリティ関数
 
 ## テスト実行
 ```bash
 # 個別テスト
-lua5.3 tests/dakuten_test.lua
-lua5.3 tests/kakuyomu_ruby_test.lua
-lua5.3 tests/kenten_filter_test.lua
-lua5.3 tests/number_filter_test.lua
-lua5.3 tests/break_filter_test.lua
+lua tests/dakuten_test.lua
+lua tests/kakuyomu_ruby_test.lua
+lua tests/kenten_filter_test.lua
+lua tests/number_filter_test.lua
 
 # 全テスト実行（手動）
-for test in tests/*_test.lua; do lua5.3 "$test"; done
+for test in tests/*_test.lua; do lua "$test"; done
 ```
 
 ## 使用例

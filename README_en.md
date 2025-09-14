@@ -64,26 +64,15 @@ Converts half-width numbers according to custom project rules. For 2-digit numbe
 - 3+ digits: `123` → `１２３`
 - Mixed: `今日は12月3日です` → `今日は{\small\tatechuyoko*{12}}月３日です`
 
-### 5. break-filter.lua
-
-Converts lines containing only full-width spaces (　) into LaTeX `\vspace` commands for representing scene transitions and temporal gaps in novels.
-
-**Examples:**
-- Single full-width space: `　` → `\vspace{1\baselineskip}`
-- Double full-width space: `　　` → `\vspace{2\baselineskip}`
-- Consecutive lines: Total spaces are combined
-- Works with or without `--wrap=preserve` option
-
-### 6. ja-novel-filter.lua
+### 5. ja-novel-filter.lua
 
 A combined entry point that loads all individual filters in the correct order. This is the recommended way to use multiple filters together.
 
 **Filter order:**
 1. dakuten.lua
-2. kenten-filter.lua  
+2. kenten-filter.lua
 3. kakuyomu_ruby.lua
 4. number-filter.lua
-5. break-filter.lua
 
 ## Usage
 
@@ -93,7 +82,6 @@ A combined entry point that loads all individual filters in the correct order. T
 ```bash
 pandoc input.md --lua-filter=dakuten.lua -o output.tex
 pandoc input.md --lua-filter=number-filter.lua -o output.tex
-pandoc input.md --lua-filter=break-filter.lua -o output.tex
 ```
 
 **All filters (recommended):**
@@ -161,7 +149,6 @@ lua5.3 tests/dakuten_test.lua
 lua5.3 tests/kakuyomu_ruby_test.lua  
 lua5.3 tests/kenten_filter_test.lua
 lua5.3 tests/number_filter_test.lua
-lua5.3 tests/break_filter_test.lua
 ```
 
 ## Requirements

@@ -10,7 +10,6 @@
 - **ルビ注釈**: カクヨム形式のルビ記法（`漢字《かんじ》`）をLaTeXルビに変換
 - **圏点**: カクヨム形式の強調記法（`《《強調》》`）をLaTeX圏点に変換
 - **縦中横処理**: 半角英数字記号を縦書きに適した縦中横処理
-- **改行・場面転換**: 全角スペース行を適切な間隔に変換
 - **波線処理**: 連続する波線（〜）を波ダッシュ（〰）に変換
 - **統合フィルタ**: 単一のコマンドですべてのフィルタを使用
 
@@ -81,17 +80,7 @@ pandoc --version
 - !と?のみ処理: `!` → `\tatechuyoko*{!}`
 - LaTeX問題記号は除外: `@#$%&`など
 
-### 5. break-filter.lua（改行・場面転換フィルタ）
-
-全角スペース（　）のみの行を小説の場面転換や時間の間を表現するLaTeX `\vspace` コマンドに変換します。
-
-**例:**
-- 1個の全角スペース: `　` → `\vspace{1\baselineskip}`
-- 2個の全角スペース: `　　` → `\vspace{2\baselineskip}`
-- 連続する全角スペース行: 各行の全角スペース数を合計して変換
-- `--wrap=preserve`オプションの有無に関わらず動作
-
-### 6. ja-novel-filter.lua（統合フィルタ）
+### 5. ja-novel-filter.lua（統合フィルタ）
 
 すべての個別フィルタを正しい順序で読み込む統合エントリーポイント。複数のフィルタを一緒に使用する推奨方法です。
 
@@ -102,9 +91,9 @@ pandoc --version
 4. tatechuyoko/halfwidth-letter-filter.lua
 5. tatechuyoko/halfwidth-number-filter.lua
 6. tatechuyoko/halfwidth-symbol-filter.lua
-7. break-filter.lua
+7. wave-dash-filter.lua
 
-### 7. wave-dash-filter.lua（波線フィルタ）
+### 6. wave-dash-filter.lua（波線フィルタ）
 
 連続する波線（〜）を波ダッシュ（〰）に変換します。単独の波線は変換しません。
 
@@ -122,7 +111,6 @@ pandoc --version
 ```bash
 pandoc input.md --lua-filter=dakuten.lua -o output.tex
 pandoc input.md --lua-filter=number-filter.lua -o output.tex
-pandoc input.md --lua-filter=break-filter.lua -o output.tex
 pandoc input.md --lua-filter=wave-dash-filter.lua -o output.tex
 ```
 
@@ -169,11 +157,7 @@ pandoc input.md --lua-filter=ja-novel-filter.lua -H preamble.tex -o output.pdf
 
 おじいさんは山へ《《柴刈り》》に出かけました。
 
-　
-
 場面が変わって、次の日の朝。
-
-　　
 
 さらに大きな時間の流れを表現。
 
@@ -193,7 +177,6 @@ lua tests/dakuten_test.lua
 lua tests/kakuyomu_ruby_test.lua  
 lua tests/kenten_filter_test.lua
 lua tests/number_filter_test.lua
-lua tests/break_filter_test.lua
 lua tests/wave_dash_filter_test.lua
 ```
 

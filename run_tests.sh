@@ -52,9 +52,6 @@ if [ -f "tests/number_filter_test.lua" ]; then
     run_test "Number Filter" "tests/number_filter_test.lua"
 fi
 
-if [ -f "tests/break_filter_test.lua" ]; then
-    run_test "Break Filter" "tests/break_filter_test.lua"
-fi
 
 # Run tatechuyoko filter tests
 echo -e "\n🔤 Tatechuyoko Filter Tests"
