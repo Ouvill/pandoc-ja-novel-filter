@@ -39,13 +39,28 @@ pandoc --version
 
 ## フィルタ
 
-### 1. dakuten.lua（濁点フィルタ）
+### 1. 濁点フィルタ群
 
-結合濁点文字（例：「あ゙」「ア゙」）を適切な組版のためのLaTeX `\dakuten{...}` コマンドに変換します。
+異なる濁点記号を適切なLaTeX `\dakuten{...}` コマンドに変換します。3つのフィルタが用意されています：
+
+#### 1-1. voiced-mark-filter.lua（独立濁点記号フィルタ）
+独立した濁点記号「゛」（U+309B）を処理します。
 
 **例:**
-- 入力: `あ゙い゙ぐ`
+- 入力: `あ゛い゛ぐ`
 - 出力: `\dakuten{あ}\dakuten{い}ぐ`
+
+#### 1-2. combining-dakuten-filter.lua（結合濁点フィルタ）
+結合濁点文字（U+3099）を処理します。
+
+**例:**
+- 入力: `あ゙い゙ぐ`（あ + 結合濁点）
+- 出力: `\dakuten{あ}\dakuten{い}ぐ`
+
+#### 1-3. dakuten.lua（統合濁点フィルタ）
+上記2つのフィルタを組み合わせた統合フィルタです。両方の濁点記号を一度に処理できます。
+
+**注意:** 現在の統合フィルタ（ja-novel-filter.lua）では、voiced-mark-filter.luaのみが使用されています。
 
 ### 2. kakuyomu_ruby.lua（ルビフィルタ）
 
@@ -86,14 +101,16 @@ pandoc --version
 すべての個別フィルタを正しい順序で読み込む統合エントリーポイント。複数のフィルタを一緒に使用する推奨方法です。
 
 **フィルタ順序:**
-1. voiced-mark-filter.lua
-2. kenten-filter.lua
-3. kakuyomu_ruby.lua
-4. tatechuyoko/halfwidth-letter-filter.lua
-5. tatechuyoko/halfwidth-number-filter.lua
-6. tatechuyoko/halfwidth-symbol-filter.lua
-7. flexwave-filter.lua
-8. flexchoon-filter.lua
+1. flexchoon-filter.lua
+2. flexwave-filter.lua
+3. voiced-mark-filter.lua
+4. kenten-filter.lua
+5. kakuyomu_ruby.lua
+6. tatechuyoko/halfwidth-letter-filter.lua
+7. tatechuyoko/halfwidth-number-filter.lua
+8. tatechuyoko/halfwidth-symbol-filter.lua
+
+**注意:** この順序は処理の効率性と正確性を考慮して設計されています。長音・波線処理を先に行い、その後濁点・圏点・ルビ・縦中横の順で処理されます。
 
 ### 6. flexwave-filter.lua（波線フィルタ）
 
