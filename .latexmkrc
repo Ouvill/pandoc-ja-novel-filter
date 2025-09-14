@@ -4,6 +4,7 @@ $lualatex = 'lualatex --cmdx -file-line-error -synctex=1 -interaction=nonstopmod
 
 # 出力ディレクトリを指定し、存在しない場合は作成
 $out_dir = 'build';
+$aux_dir = 'build';
 system("mkdir -p $out_dir") unless -d $out_dir;
 
 # 自動的にPDFビューアを開く（オプション）
