@@ -10,7 +10,7 @@ end
 -- Set FORMAT for testing
 FORMAT = "latex"
 
-dofile("continuouswave-filter.lua")
+dofile("flexwave-filter.lua")
 
 local function create_str(text)
     return {t = "Str", text = text}
