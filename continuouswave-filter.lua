@@ -2,13 +2,13 @@
 -- 
 -- 仕様:
 -- - 波線(〜)が1つの場合は置換しない
--- - 波線(〜)が2つ以上連続している場合、\continuouswave{数}に変換
+-- - 波線(〜)が2つ以上連続している場合、\flexwave{数}に変換
 -- 
 -- 例:
 -- 〜        -> 〜 (変更なし)
--- 〜〜      -> \continuouswave{2}
--- 〜〜〜    -> \continuouswave{3}
--- あ〜〜いう -> あ\continuouswave{2}いう
+-- 〜〜      -> \flexwave{2}
+-- 〜〜〜    -> \flexwave{3}
+-- あ〜〜いう -> あ\flexwave{2}いう
 
 local function replace_continuous_waves(str)
     local result = {}
@@ -29,7 +29,7 @@ local function replace_continuous_waves(str)
             end
             if count >= 2 then
                 if FORMAT == "latex" then
-                    table.insert(result, pandoc.RawInline('latex', '\\continuouswave{' .. count .. '}'))
+                    table.insert(result, pandoc.RawInline('latex', '\\flexwave{' .. count .. '}'))
                 else
                     table.insert(result, pandoc.Str("〜〜" .. string.rep("〜", count - 2)))
                 end

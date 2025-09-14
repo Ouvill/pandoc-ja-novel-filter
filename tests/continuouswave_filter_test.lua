@@ -36,13 +36,13 @@ end
 local function test_continuous_wave_replacement()
     local tests = {
         {"〜", "〜"},
-        {"〜〜", "\\continuouswave{2}"},
-        {"〜〜〜", "\\continuouswave{3}"},
-        {"〜〜〜〜", "\\continuouswave{4}"},
+        {"〜〜", "\\flexwave{2}"},
+        {"〜〜〜", "\\flexwave{3}"},
+        {"〜〜〜〜", "\\flexwave{4}"},
         {"あ〜いう", "あ〜いう"},
-        {"あ〜〜いう", "あ\\continuouswave{2}いう"},
-        {"〜〜え〜〜お", "\\continuouswave{2}え\\continuouswave{2}お"},
-        {"〜え〜〜お〜", "〜え\\continuouswave{2}お〜"},
+        {"あ〜〜いう", "あ\\flexwave{2}いう"},
+        {"〜〜え〜〜お", "\\flexwave{2}え\\flexwave{2}お"},
+        {"〜え〜〜お〜", "〜え\\flexwave{2}お〜"},
         {"普通の文字", "普通の文字"},
         {"", ""},
     }
@@ -72,7 +72,7 @@ end
 local function test_plain_element()
     local plain = {t = "Plain", content = {create_str("〜〜〜テスト〜〜")}}
     local result = Plain(plain)
-    local expected = "\\continuouswave{3}テスト\\continuouswave{2}"
+    local expected = "\\flexwave{3}テスト\\flexwave{2}"
     local actual = elements_to_text(result.content)
 
     if actual == expected then
@@ -87,7 +87,7 @@ end
 local function test_header_element()
     local header = {t = "Header", content = {create_str("見出し〜〜〜")}}
     local result = Header(header)
-    local expected = "見出し\\continuouswave{3}"
+    local expected = "見出し\\flexwave{3}"
     local actual = elements_to_text(result.content)
 
     if actual == expected then
