@@ -86,13 +86,14 @@ pandoc --version
 すべての個別フィルタを正しい順序で読み込む統合エントリーポイント。複数のフィルタを一緒に使用する推奨方法です。
 
 **フィルタ順序:**
-1. dakuten.lua
-2. kenten-filter.lua  
+1. voiced-mark-filter.lua
+2. kenten-filter.lua
 3. kakuyomu_ruby.lua
 4. tatechuyoko/halfwidth-letter-filter.lua
 5. tatechuyoko/halfwidth-number-filter.lua
 6. tatechuyoko/halfwidth-symbol-filter.lua
-7. wave-dash-filter.lua
+7. flexwave-filter.lua
+8. flexchoon-filter.lua
 
 ### 6. flexwave-filter.lua（波線フィルタ）
 
