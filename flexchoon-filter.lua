@@ -10,54 +10,53 @@
 -- ーーー    -> \flexchoon{3}
 -- あーーいう -> あ\flexchoon{2}いう
 
-local function replace_continuous_choons(str)
+local function process_inlines(inlines)
     local result = {}
-    local i = 1
-    while i <= utf8.len(str) do
-        local char = utf8.char(utf8.codepoint(str, utf8.offset(str, i)))
-        if char == "ー" then
-            local count = 0
-            local j = i
-            while j <= utf8.len(str) do
-                local next_char = utf8.char(utf8.codepoint(str, utf8.offset(str, j)))
-                if next_char == "ー" then
-                    count = count + 1
-                    j = j + 1
+    for i = 1, #inlines do
+        if inlines[i].t == "Str" and FORMAT == "latex" then
+            local text = inlines[i].text
+            local chars = {}
+
+            -- Convert to UTF-8 character array
+            for p, c in utf8.codes(text) do
+                table.insert(chars, utf8.char(c))
+            end
+
+            local new_chars = {}
+            local i = 1
+            while i <= #chars do
+                if chars[i] == "ー" then
+                    -- Count consecutive choons
+                    local count = 0
+                    local j = i
+                    while j <= #chars and chars[j] == "ー" do
+                        count = count + 1
+                        j = j + 1
+                    end
+
+                    if count >= 2 then
+                        table.insert(result, pandoc.RawInline('latex', '\\flexchoon{' .. count .. '}'))
+                    else
+                        table.insert(result, pandoc.Str("ー"))
+                    end
+                    i = j
                 else
-                    break
+                    -- Collect non-choon characters
+                    local text_part = ""
+                    while i <= #chars and chars[i] ~= "ー" do
+                        text_part = text_part .. chars[i]
+                        i = i + 1
+                    end
+                    if text_part ~= "" then
+                        table.insert(result, pandoc.Str(text_part))
+                    end
                 end
             end
-            if count >= 2 then
-                if FORMAT == "latex" then
-                    table.insert(result, pandoc.RawInline('latex', '\\flexchoon{' .. count .. '}'))
-                else
-                    table.insert(result, pandoc.Str("ーー" .. string.rep("ー", count - 2)))
-                end
-            else
-                table.insert(result, pandoc.Str("ー"))
-            end
-            i = i + count
         else
-            table.insert(result, pandoc.Str(char))
-            i = i + 1
+            table.insert(result, inlines[i])
         end
     end
     return result
-end
-
-local function process_inlines(inlines)
-    local new_inlines = {}
-    for i = 1, #inlines do
-        if inlines[i].t == "Str" then
-            local processed = replace_continuous_choons(inlines[i].text)
-            for _, item in ipairs(processed) do
-                table.insert(new_inlines, item)
-            end
-        else
-            table.insert(new_inlines, inlines[i])
-        end
-    end
-    return new_inlines
 end
 
 function Para(el)

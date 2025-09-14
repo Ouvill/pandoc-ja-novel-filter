@@ -10,16 +10,34 @@
 -- 〜〜〜    -> \flexwave{3}
 -- あ〜〜いう -> あ\flexwave{2}いう
 
-local function replace_continuous_waves(str)
+local function replace_continuous_waves(text)
     local result = {}
     local i = 1
-    while i <= utf8.len(str) do
-        local char = utf8.char(utf8.codepoint(str, utf8.offset(str, i)))
+    local utf8_len = utf8.len(text)
+
+    while i <= utf8_len do
+        local char_start = utf8.offset(text, i)
+        local char_end = utf8.offset(text, i + 1)
+        if char_end then
+            char_end = char_end - 1
+        else
+            char_end = #text
+        end
+        local char = text:sub(char_start, char_end)
+
         if char == "〜" then
+            -- Find the end of consecutive waves
             local count = 0
             local j = i
-            while j <= utf8.len(str) do
-                local next_char = utf8.char(utf8.codepoint(str, utf8.offset(str, j)))
+            while j <= utf8_len do
+                local next_start = utf8.offset(text, j)
+                local next_end = utf8.offset(text, j + 1)
+                if next_end then
+                    next_end = next_end - 1
+                else
+                    next_end = #text
+                end
+                local next_char = text:sub(next_start, next_end)
                 if next_char == "〜" then
                     count = count + 1
                     j = j + 1
@@ -27,21 +45,23 @@ local function replace_continuous_waves(str)
                     break
                 end
             end
+
             if count >= 2 then
                 if FORMAT == "latex" then
                     table.insert(result, pandoc.RawInline('latex', '\\flexwave{' .. count .. '}'))
                 else
-                    table.insert(result, pandoc.Str("〜〜" .. string.rep("〜", count - 2)))
+                    table.insert(result, pandoc.Str(string.rep("〜", count)))
                 end
             else
                 table.insert(result, pandoc.Str("〜"))
             end
-            i = i + count
+            i = j
         else
             table.insert(result, pandoc.Str(char))
             i = i + 1
         end
     end
+
     return result
 end
 
