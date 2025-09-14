@@ -10,7 +10,8 @@ end
 -- Set FORMAT for testing
 FORMAT = "latex"
 
-dofile("flexchoon-filter.lua")
+local filter = dofile("flexchoon-filter.lua")
+local Str = filter.Str
 
 local function create_str(text)
     return {t = "Str", text = text}
@@ -52,9 +53,25 @@ local function test_continuous_choon_replacement()
 
     for i, test in ipairs(tests) do
         local input_text, expected = test[1], test[2]
-        local para = create_para({create_str(input_text)})
-        local result = Para(para)
-        local actual = elements_to_text(result.content)
+        local input_str = create_str(input_text)
+        local result = Str(input_str)
+
+        local actual
+        if not result then
+            actual = input_text
+        elseif type(result) == "table" and result.t then
+            -- Single element
+            if result.t == "Str" then
+                actual = result.text
+            elseif result.t == "RawInline" then
+                actual = result.text
+            end
+        elseif type(result) == "table" and #result > 0 then
+            -- Array of elements
+            actual = elements_to_text(result)
+        else
+            actual = input_text
+        end
 
         total_assertions = total_assertions + 1
         if actual == expected then
@@ -69,37 +86,37 @@ local function test_continuous_choon_replacement()
     return passed_assertions == total_assertions
 end
 
-local function test_plain_element()
-    local plain = {t = "Plain", content = {create_str("ーーーテストーー")}}
-    local result = Plain(plain)
+local function test_str_element()
+    local input_str = create_str("ーーーテストーー")
+    local result = Str(input_str)
     local expected = "\\flexchoon{3}テスト\\flexchoon{2}"
-    local actual = elements_to_text(result.content)
+    local actual = elements_to_text(result)
 
     if actual == expected then
-        print("✓ Plain element test passed")
+        print("✓ Str element test passed")
         return true
     else
-        print(string.format("✗ Plain element test failed: expected '%s', got '%s'", expected, actual))
+        print(string.format("✗ Str element test failed: expected '%s', got '%s'", expected, actual))
         return false
     end
 end
 
-local function test_header_element()
-    local header = {t = "Header", content = {create_str("見出しーーー")}}
-    local result = Header(header)
+local function test_complex_str_element()
+    local input_str = create_str("見出しーーー")
+    local result = Str(input_str)
     local expected = "見出し\\flexchoon{3}"
-    local actual = elements_to_text(result.content)
+    local actual = elements_to_text(result)
 
     if actual == expected then
-        print("✓ Header element test passed")
+        print("✓ Complex Str element test passed")
         return true
     else
-        print(string.format("✗ Header element test failed: expected '%s', got '%s'", expected, actual))
+        print(string.format("✗ Complex Str element test failed: expected '%s', got '%s'", expected, actual))
         return false
     end
 end
 
-local success = test_continuous_choon_replacement() and test_plain_element() and test_header_element()
+local success = test_continuous_choon_replacement() and test_str_element() and test_complex_str_element()
 
 if success then
     print("\n🎉 All continuous choon filter tests passed!")

@@ -12,9 +12,9 @@ end
 -- Early return helper for non-LaTeX formats
 function utils.latex_only_filter(filter_table)
   if not utils.is_latex() then
-    return {}
+    return {{}}
   end
-  return filter_table
+  return {filter_table}
 end
 
 -- Process a string element with a transformation function
