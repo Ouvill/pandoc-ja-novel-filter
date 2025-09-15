@@ -7,7 +7,7 @@ local pandoc = {
 }
 _G.pandoc = pandoc
 local filter = dofile((... and (...):gsub("[^/\\]+$", "kakuyomu_ruby.lua")) or "kakuyomu_ruby.lua")
-local Str = filter.Str
+local Str = filter[1].Str
 
 local fails, tests = 0, 0
 local function assert_eq(a, b, msg)
@@ -41,7 +41,7 @@ do
     end
   end
   local text = table.concat(combined)
-  assert_true(text:find('\\ruby%[g%]{彼女}{ヒロイン}'), 'implicit: ruby command present')
+  assert_true(text:find('\\ruby{彼女}{ヒロイン}'), 'implicit: ruby command present')
 end
 
 -- 2) Explicit: fullwidth bar ｜
@@ -55,7 +55,7 @@ do
     elseif e.t == 'RawInline' and e.format == 'latex' then text = text .. e.text
     end
   end
-  assert_true(text:find('\\ruby%[g%]{etc}{えとせとら}'), 'explicit fullwidth bar: ruby command')
+  assert_true(text:find('\\ruby{etc}{えとせとら}'), 'explicit fullwidth bar: ruby command')
 end
 
 -- 3) Explicit: halfwidth bar |
@@ -69,7 +69,7 @@ do
     elseif e.t == 'RawInline' and e.format == 'latex' then text = text .. e.text
     end
   end
-  assert_true(text:find('\\ruby%[g%]{紅蓮の炎}{ヘルフレイム}'), 'explicit bar: ruby command')
+  assert_true(text:find('\\ruby{紅蓮の炎}{ヘルフレイム}'), 'explicit bar: ruby command')
 end
 
 if fails == 0 then

@@ -11,7 +11,7 @@
 --   B) Explicit base marker: ｜base《yomi》 or |base《yomi》
 --      - base may include non-kanji.
 -- Behavior:
---   - Replaces the matched base+reading with RawInline('latex', "\\ruby[g]{base}{yomi}").
+--   - Replaces the matched base+reading with RawInline('latex', "\\ruby{base}{yomi}").
 --   - Preserves surrounding text as Str and supports multiple occurrences per Str.
 -- Returns:
 --   - nil when there’s no 《》 pair; Inline/Inline[] when transformed.
@@ -19,14 +19,14 @@
 --   - Unbalanced brackets: leaves text unchanged for that segment.
 --   - Implicit mode only matches CJK Unified Ideographs (U+3400–U+9FFF) and CJK Compatibility Ideographs (U+F900–U+FAFF).
 -- Examples:
---   冴えない彼女《ヒロイン》 -> 冴えない\\ruby[g]{彼女}{ヒロイン}
---   あいつの｜etc《えとせとら》 -> あいつの\\ruby[g]{etc}{えとせとら}
---   この際｜紅蓮の炎《ヘルフレイム》に -> この際\\ruby[g]{紅蓮の炎}{ヘルフレイム}に
+--   冴えない彼女《ヒロイン》 -> 冴えない\\ruby{彼女}{ヒロイン}
+--   あいつの｜etc《えとせとら》 -> あいつの\\ruby{etc}{えとせとら}
+--   この際｜紅蓮の炎《ヘルフレイム》に -> この際\\ruby{紅蓮の炎}{ヘルフレイム}に
 
 local utils = dofile((debug.getinfo(1, 'S').source:match('@(.*)') or ''):gsub('[^/\\]*$', '') .. 'utils.lua')
 
 local function make_ruby(base, yomi)
-  return utils.latex_inline(string.format('\\ruby[g]{%s}{%s}', base, yomi))
+  return utils.latex_inline(string.format('\\ruby{%s}{%s}', base, yomi))
 end
 
 local function process_ruby_text(text)
